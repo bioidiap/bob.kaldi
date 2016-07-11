@@ -3,6 +3,7 @@
 # Marc Ferras Font <marc.ferras@idiap.ch>
 # Mon 11 Jul 2016 10:39:15 CEST
 
+import os
 import tempfile
 
 import scipy.io.wavfile
@@ -42,7 +43,7 @@ def mfcc (data, rate):
   with tempfile.NamedTemporaryFile(suffix='.wav') as wavfile:
 
     # map into 16-bit range
-    maxSample=2**16-1
+    maxSample=2**15-1
     data = maxSample*data
 
     # write down wav file
@@ -81,11 +82,11 @@ def mfcc_from_path(filename, channel=0):
   cmd = [binary]
 
   # creates temporary files that magically disappear after the block ends
-  with tempfile.NamedTemporaryFile(suffix='.scp') as scpfile,
+  with tempfile.NamedTemporaryFile(suffix='.scp') as scpfile, \
        tempfile.NamedTemporaryFile(suffix='.ark') as arkfile:
 
     # indicate to kaldi what to process
-    scpfile.write(key + ' ' + filename)
+    scpfile.write(name + ' ' + filename)
     scpfile.flush()
 
     # compute features into the ark file

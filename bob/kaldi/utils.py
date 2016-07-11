@@ -6,7 +6,7 @@
 """Various utilities for Kaldi I/O"""
 
 from sys import executable
-from os import dirname, join
+from os.path import dirname, join
 
 
 def kaldi_path(suffix=None):
