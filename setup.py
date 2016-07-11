@@ -19,7 +19,7 @@ setup(
 
     name="bob.kaldi",
     version=version,
-    description="Building of Python/C++ extensions for Bob",
+    description="Kaldi Python bindings for BEAT",
     url='http://gitlab.idiap.ch/biometric/bob.kaldi',
     license="GPLv3",
     author='Marc Ferras Font',
