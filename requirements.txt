@@ -1,0 +1,4 @@
+setuptools
+bob.extension
+numpy
+scipy
