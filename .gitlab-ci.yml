@@ -1,0 +1,11 @@
+py27-idiap:
+  script:
+    - git clean -ffdx
+    - /idiap/project/beat/environments/beat.env.develop-2016.04.25/usr/bin/python bootstrap-buildout.py
+    - ./bin/buildout
+    - ./bin/python --version
+    - export NOSE_WITH_COVERAGE=1
+    - export NOSE_COVER_PACKAGE=bob.kaldi
+    - ./bin/nosetests bob.kaldi -sv
+  tags:
+    - lidiap2015
