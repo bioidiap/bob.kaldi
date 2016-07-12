@@ -35,6 +35,7 @@ def test_mfcc():
 
   ours = mfcc(data.load()[0], data.rate)
   theirs = numpy.loadtxt(reference)
+#  import ipdb ; ipdb.set_trace()
 
   assert ours.shape == theirs.shape
 

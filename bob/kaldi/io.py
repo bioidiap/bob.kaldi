@@ -500,3 +500,52 @@ def read_cntime(file_or_fd):
   if fd is not file_or_fd : fd.close()
   return ans
 
+
+def write_wav(fp, data, rate, bitdepth=16):
+
+  num_chan = 1
+  num_samp = data.size
+
+  assert bitdepth==8 or bitdepth==16 or bitdepth==32
+
+  if bitdepth==8:
+    bytes_per_samp = 1
+  elif bitdepth==16:
+    bytes_per_samp = 2
+  elif bitdepth==32:
+    bytes_per_samp = 4
+
+  subchunk2size = num_chan * num_samp * bytes_per_samp
+  chunk_size = 36 + subchunk2size
+
+  fp.write('RIFF')
+  fp.write(np.array(chunk_size,dtype='int32'))
+  fp.write('WAVE')
+  fp.write('fmt ')
+  fp.write(np.array(16,dtype='int32'))
+  # wFormatTag, 1 for PCM, 3 for IEEE_FLOAT
+  # Kaldi will only read PCM wav files
+  fp.write(np.array(1,dtype='int16'))
+  fp.write(np.array(num_chan,dtype='int16'))
+
+  fp.write(np.array(rate,dtype='int32'))
+  fp.write(np.array(rate * num_chan * bytes_per_samp,dtype='int32'))
+  fp.write(np.array(num_chan * bytes_per_samp,dtype='int16'))
+  fp.write(np.array(8 * bytes_per_samp,dtype='int16'))
+
+  fp.write('data')
+  fp.write(np.array(subchunk2size,dtype='int32'))
+
+  if bitdepth==8:
+    scale = 1<<7
+    fp.write(np.asarray(scale * data, dtype='int8'))
+  elif bitdepth==16:
+    scale = 1<<15
+    fp.write(np.asarray(scale * data, dtype='int16'))
+  elif bitdepth==32:
+    scale = 1<<31
+    fp.write(np.asarray(scale * data, dtype='uint32'))
+
+
+  return
+
