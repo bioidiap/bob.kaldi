@@ -11,6 +11,7 @@ from . import io
 from . import utils
 
 from subprocess import PIPE, Popen
+import tempfile
 
 
 def mfcc (data, rate, preemphasis_coefficient=0.97, raw_energy=True, frame_length=25, frame_shift=10, num_ceps=13, num_mel_bins=23, cepstral_lifter=22, low_freq=20, high_freq=0, dither=1.0, snip_edges=True):
@@ -124,3 +125,66 @@ def mfcc_from_path(filename, channel=0, preemphasis_coefficient=0.97, raw_energy
 
     # read ark from pipe.stdout
     return [mat for name,mat in io.read_mat_ark(pipe.stdout)][0]
+
+def compute_vad(feats, vad_energy_mean_scale=0.5, vad_energy_threshold=5, vad_frames_context=0, vad_proportion_threshold=0.6):
+  """Computes speech/non-speech segments given a Kaldi feature matrix
+
+  Parameters:
+
+    feats (matrix): A 2-D numpy array, with log-energy being in the first component of each feature vector
+
+
+  Returns:
+
+    A list of speech segments as a int32 numpy array with start and end times
+
+  Raises:
+
+    RuntimeError: if any problem was detected during the conversion.
+
+    IOError: if the binary to be executed does not exist
+
+  """
+
+  name = 'abc'
+  binary1 = utils.kaldi_path(['src', 'ivectorbin', 'compute-vad'])
+  cmd1 = [binary1]
+
+  # compute features into the ark file
+  cmd1 += [
+      '--vad-energy-mean-scale=' + str(vad_energy_mean_scale),
+      '--vad-energy-threshold=' + str(vad_energy_threshold),
+      '--vad-frames-context=' + str(vad_frames_context),
+      '--vad-proportion-threshold=' + str(vad_proportion_threshold),
+      'ark:-',
+      'ark:-',
+      ]
+
+  with tempfile.NamedTemporaryFile(suffix='.seg') as segfile: 
+    binary2 = utils.kaldi_path(['src', 'ivectorbin', 'create-split-from-vad'])
+    cmd2 = [binary2]
+
+    cmd2 += [
+      'ark:-',
+      segfile.name,
+    ]
+
+    with open(os.devnull, "w") as fnull:
+      # pipe1 numpy matrix -> compute-vad
+      pipe1 = Popen(cmd1, stdout=PIPE, stdin=PIPE, stderr=fnull)
+      pipe2 = Popen(cmd2, stdout=PIPE, stdin=pipe1.stdout, stderr=fnull)
+
+      # write ark file into pipe.stdin
+      io.write_mat(pipe1.stdin, feats, key='abc')
+      pipe1.stdin.close()
+
+      # wait for piped execution to finish
+      pipe2.communicate()
+
+      # segfile should have the segmented output. read the file
+      segs = []
+      with open(segfile.name) as fp:
+        for l in fp.readlines():
+          start, end = l.split()[2:]
+          segs.append([start, end])
+      return np.array(segs, dtype='int32')

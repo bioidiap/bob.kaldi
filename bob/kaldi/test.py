@@ -6,11 +6,11 @@
 '''Tests for Kaldi bindings'''
 
 import pkg_resources
-import numpy
+import numpy as np
 import bob.io.audio
+import io
 
-
-from .mfcc import mfcc, mfcc_from_path
+from .mfcc import mfcc, mfcc_from_path, compute_vad
 
 
 def test_mfcc_from_path():
@@ -19,11 +19,11 @@ def test_mfcc_from_path():
   reference = pkg_resources.resource_filename(__name__, 'data/sample16k-mfcc.txt')
 
   ours = mfcc_from_path(sample)
-  theirs = numpy.loadtxt(reference)
+  theirs = np.loadtxt(reference)
 
   assert ours.shape == theirs.shape
 
-  assert numpy.allclose(ours, theirs)
+  assert np.allclose(ours, theirs)
 
 
 def test_mfcc():
@@ -31,12 +31,34 @@ def test_mfcc():
   sample = pkg_resources.resource_filename(__name__, 'data/sample16k.wav')
   reference = pkg_resources.resource_filename(__name__, 'data/sample16k-mfcc.txt')
 
+
   data = bob.io.audio.reader(sample)
 
   ours = mfcc(data.load()[0], data.rate)
-  theirs = numpy.loadtxt(reference)
+  theirs = np.loadtxt(reference)
 #  import ipdb ; ipdb.set_trace()
 
   assert ours.shape == theirs.shape
 
-  assert numpy.allclose(ours, theirs)
+  assert np.allclose(ours, theirs)
+
+def test_compute_vad():
+
+  refseg = pkg_resources.resource_filename(__name__, 'data/sample16k.seg')
+
+  # read and parse reference segmentation file into numpy array of int32
+  segsref = []
+  with open(refseg) as fp:
+    for l in fp.readlines():
+      l = l.strip()
+      s = l.split()
+      start = int(s[2])
+      end = int(s[3])
+      segsref.append([ start, end ])
+  segsref = np.array(segsref, dtype='int32')
+
+  feats = [mat for name,mat in io.read_mat_ark( pkg_resources.resource_filename(__name__,'data/sample16k.ark') )][0]
+
+  segs = compute_vad(feats)
+
+  assert np.array_equal(segs,segsref)
