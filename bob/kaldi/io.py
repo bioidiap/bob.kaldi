@@ -5,17 +5,26 @@
 import numpy as np
 import os, re, gzip, struct
 
+import logging
+logger = logging.getLogger("bob.kaldi")
+
+# from signal import signal, SIGPIPE, SIG_DFL
+# signal(SIGPIPE,SIG_DFL)
+
 #################################################
-# Adding kaldi tools to shell path,
+# adding kaldi tools to shell path,
 
 # Select kaldi,
 if not 'KALDI_ROOT' in os.environ:
   # Default! To change run python with 'export KALDI_ROOT=/some_dir python'
-  os.environ['KALDI_ROOT']='/mnt/matylda5/iveselyk/Tools/kaldi-trunk'
+  os.environ['KALDI_ROOT']='/idiap/resource/software/kaldi/x86_64/stable'
+  # os.environ['KALDI_ROOT']='/idiap/user/mcernak/Tools/kaldi'
 
 # Add kaldi tools to path,
 os.environ['PATH'] = os.popen('echo $KALDI_ROOT/src/bin:$KALDI_ROOT/tools/openfst/bin:$KALDI_ROOT/src/fstbin/:$KALDI_ROOT/src/gmmbin/:$KALDI_ROOT/src/featbin/:$KALDI_ROOT/src/lm/:$KALDI_ROOT/src/sgmmbin/:$KALDI_ROOT/src/sgmm2bin/:$KALDI_ROOT/src/fgmmbin/:$KALDI_ROOT/src/latbin/:$KALDI_ROOT/src/nnetbin:$KALDI_ROOT/src/nnet2bin:$KALDI_ROOT/src/nnet3bin:$KALDI_ROOT/src/online2bin/:$KALDI_ROOT/src/ivectorbin/:$KALDI_ROOT/src/lmbin/').readline().strip() + ':' + os.environ['PATH']
 
+def kaldi_path():
+  return os.environ['KALDI_ROOT']
 
 #################################################
 # Data-type independent helper functions,
@@ -506,6 +515,8 @@ def write_wav(fp, data, rate, bitdepth=16):
   num_chan = 1
   num_samp = data.size
 
+  # logger.debug("... write_wav. num_samp: %s", num_samp)
+
   assert bitdepth==8 or bitdepth==16 or bitdepth==32
 
   if bitdepth==8:
@@ -527,6 +538,7 @@ def write_wav(fp, data, rate, bitdepth=16):
   # Kaldi will only read PCM wav files
   fp.write(np.array(1,dtype='int16'))
   fp.write(np.array(num_chan,dtype='int16'))
+  # logger.debug("... write_wav",)
 
   fp.write(np.array(rate,dtype='int32'))
   fp.write(np.array(rate * num_chan * bytes_per_samp,dtype='int32'))
@@ -536,6 +548,7 @@ def write_wav(fp, data, rate, bitdepth=16):
   fp.write('data')
   fp.write(np.array(subchunk2size,dtype='int32'))
 
+  # import pdb; pdb.set_trace()
   if bitdepth==8:
     scale = 1<<7
     fp.write(np.asarray(scale * data, dtype='int8'))
@@ -545,7 +558,6 @@ def write_wav(fp, data, rate, bitdepth=16):
   elif bitdepth==32:
     scale = 1<<31
     fp.write(np.asarray(scale * data, dtype='uint32'))
-
 
   return
 
