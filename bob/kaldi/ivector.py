@@ -28,10 +28,13 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600, use_we
   # 1. Create Kaldi training data structure
   with tempfile.NamedTemporaryFile(delete=False, suffix='.ark') as arkfile:
     with open(arkfile.name,'wb') as f:
-      for i,utt in enumerate(feats):
-        uttid='utt'+str(i)
-        io.write_mat(f, utt, key=uttid)
-  
+      if feats.ndim == 3:
+        for i,utt in enumerate(feats):
+          uttid='utt'+str(i)
+          io.write_mat(f, utt, key=uttid)
+      else:
+        io.write_mat(f, feats, key='utt0')
+          
   # Initialize the i-vector extractor using the FGMM input
   binary1 = join(io.kaldi_path(),'src', 'fgmmbin', 'fgmm-global-to-gmm')
   cmd1 = [binary1]
@@ -161,6 +164,8 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600, use_we
 
   shutil.copyfile(inModel, projector_file+'.ie')
   os.unlink(inModel)
+
+  return projector_file+'.ie'
 
 def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025, posterior_scale=1.0):
   """ Implements egs/sre10/v1/extract_ivectors.sh
@@ -330,6 +335,8 @@ def plda_train(feats, enroller_file):
   os.unlink(spkfile.name)
   os.unlink(arkfile.name)
 
+  return enroller_file + '.plda'
+
 def plda_enroll(feats, enroller_file):
   """ Implements egs/sre10/v1/plda_scoring.sh
   """
@@ -407,6 +414,7 @@ def plda_enroll(feats, enroller_file):
 def plda_score(feats, model, ubm):
   """ Implements egs/sre10/v1/plda_scoring.sh
   """
+  # import ipdb; ipdb.set_trace()
   # ivector-plda-scoring --normalize-length=true \
   # --num-utts=ark:${enroll_ivec_dir}/num_utts.ark \
   # "ivector-copy-plda --smoothing=0.0 ${plda_ivec_dir}/plda - |" \

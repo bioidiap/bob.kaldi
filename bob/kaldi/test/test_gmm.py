@@ -25,7 +25,7 @@ def test_ubm_train():
   normalization=False)
   # Train small diagonall GMM 
   dubm = bob.kaldi.ubm_train(array, temp_file, num_gauss = 2,
-  num_gselect = 2, num_iters = 1)
+                             num_gselect = 2, num_iters = 2)
 
   assert os.path.exists(dubm)
 
@@ -40,10 +40,10 @@ def test_ubm_full_train():
   array = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=False)
   # Train small diagonal GMM
   dubm = bob.kaldi.ubm_train(array, temp_dubm_file, num_gauss = 2,
-  num_gselect = 2, num_iters = 1)
+                             num_gselect = 2, num_iters = 2)
   # Train small full GMM
   ubm = bob.kaldi.ubm_full_train(array, temp_dubm_file,
-  num_gselect = 2, num_iters = 1)
+                                 num_gselect = 2, num_iters = 2)
   
   assert os.path.exists(ubm)
 
@@ -59,7 +59,7 @@ def test_ubm_enroll():
   normalization=False)
   # Train small diagonal GMM
   dubm = bob.kaldi.ubm_train(array, temp_dubm_file, num_gauss = 2,
-  num_gselect = 2, num_iters = 1)
+                             num_gselect = 2, num_iters = 2)
   # Perform MAP adaptation of the GMM
   spk_model = bob.kaldi.ubm_enroll(array, dubm)
   
@@ -76,13 +76,13 @@ def test_gmm_score():
   normalization=False)
   # Train small diagonal GMM
   dubm = bob.kaldi.ubm_train(array, temp_dubm_file, num_gauss = 2,
-  num_gselect = 2, num_iters = 1)
+                             num_gselect = 2, num_iters = 2)
   # Perform MAP adaptation of the GMM
   spk_model = bob.kaldi.ubm_enroll(array, dubm)
   # GMM scoring
   score = bob.kaldi.gmm_score(array, spk_model, dubm)
 
-  assert np.allclose(score, [ 0.26603000000000065 ])
+  assert np.allclose(score, [ 0.28216 ])
 
 def test_gmm_score_fast():
 
@@ -95,10 +95,10 @@ def test_gmm_score_fast():
   normalization=False)
   # Train small diagonal GMM
   dubm = bob.kaldi.ubm_train(array, temp_dubm_file, num_gauss = 2,
-  num_gselect = 2, num_iters = 1)
+                             num_gselect = 2, num_iters = 2)
   # Perform MAP adaptation of the GMM
   spk_model = bob.kaldi.ubm_enroll(array, dubm)
   # GMM scoring
   score = bob.kaldi.gmm_score_fast(array, spk_model, dubm)
 
-  assert np.allclose(score, [ 0.26603000000000065 ])
+  assert np.allclose(score, [ 0.282168 ])
