@@ -25,7 +25,7 @@ def test_mfcc():
 
   assert ours.shape == theirs.shape
 
-  assert np.allclose(ours, theirs)
+  assert np.allclose(ours, theirs, 1e-03, 1e-05)
 
 def test_mfcc_from_path():
 
@@ -37,7 +37,7 @@ def test_mfcc_from_path():
 
   assert ours.shape == theirs.shape
 
-  assert np.allclose(ours, theirs)
+  assert np.allclose(ours, theirs, 1e-03, 1e-05)
 
 
 # def test_compute_vad():
