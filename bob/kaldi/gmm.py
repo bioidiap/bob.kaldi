@@ -22,9 +22,7 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
   min_gaussian_weight=0.0001, num_gauss=2048, num_gauss_init=0,
   num_gselect=30, num_iters_init=20, num_iters=4,
   remove_low_count_gaussians=True):
-  """ Implements Implements train_diag_ubm.sh
-  Initializes a single diagonal GMM and does multiple iterations of
-     training from features stored in memory.
+  """ Implements train_diag_ubm.sh
 
   Parameters:
 
@@ -169,7 +167,6 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
 
 def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4, min_gaussian_weight=1.0e-04):
   """ Implements egs/sre10/v1/train_full_ubm.sh
-  
   """
   origdubm = dubmname
   dubmname += '.dubm'
@@ -356,9 +353,7 @@ def ubm_enroll(feats, ubm_file):
   # gmm-global-acc-stats /idiap/temp/mcernak/mobio/mobio_kaldi_norm/Projector.hdf5 ark,t:feats.txt - | ../../Tools/kaldi/src/gmmbin/global-gmm-adapt-map --update-flags="m" /idiap/temp/mcernak/mobio/mobio_kaldi_norm/Projector.hdf5 - spk.ubm
 
 def gmm_score(feats, gmm_file, ubm_file):
-  """Print out per-frame log-likelihoods for each utterance, as an archive
-  of vectors of floats.  If --average=true, prints out the average per-frame
-  log-likelihood for each utterance, as a single float.
+  """Print out per-frame log-likelihoods for each utterance
 
   Parameters:
 
