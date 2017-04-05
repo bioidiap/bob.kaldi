@@ -37,13 +37,6 @@ def mfcc (data, rate=8000, preemphasis_coefficient=0.97, raw_energy=True, frame_
     numpy.ndarray: The MFCCs calculated for the input signal (2D array of
       32-bit floats).
 
-
-  Raises:
-
-    RuntimeError: if any problem was detected during the conversion.
-
-    IOError: if the binary to be executed does not exist
-
   """
 
   name = 'abc'
@@ -118,13 +111,6 @@ def mfcc_from_path(filename, channel=0, preemphasis_coefficient=0.97, raw_energy
 
     numpy.ndarray: The MFCCs calculated for the input signal (2D array of
       32-bit floats).
-
-
-  Raises:
-
-    RuntimeError: if any problem was detected during the conversion.
-
-    IOError: if the binary to be executed does not exist
 
   """
 
