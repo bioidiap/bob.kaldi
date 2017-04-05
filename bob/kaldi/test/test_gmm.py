@@ -82,7 +82,7 @@ def test_gmm_score():
   # GMM scoring
   score = bob.kaldi.gmm_score(array, spk_model, dubm)
 
-  assert np.allclose(score, [ 0.28216 ])
+  assert np.allclose(score, [ 0.28216 ], 1e-03, 1e-05)
 
 # def test_gmm_score_fast():
 

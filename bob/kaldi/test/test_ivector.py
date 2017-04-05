@@ -65,8 +65,7 @@ def test_ivector_extract():
 def test_plda_train():
 
   temp_file = bob.io.base.test_utils.temporary_filename()
-  features = pkg_resources.resource_filename(__name__,
-  'data/feats-mobio.npy')
+  features = pkg_resources.resource_filename(__name__, 'data/feats-mobio.npy')
 
   feats = np.load(features)
   
@@ -80,8 +79,7 @@ def test_plda_train():
 def test_plda_enroll():
 
   temp_file = bob.io.base.test_utils.temporary_filename()
-  features = pkg_resources.resource_filename(__name__,
-  'data/feats-mobio.npy')
+  features = pkg_resources.resource_filename(__name__, 'data/feats-mobio.npy')
 
   feats = np.load(features)
   
@@ -94,10 +92,8 @@ def test_plda_enroll():
 def test_plda_score():
 
   temp_file = bob.io.base.test_utils.temporary_filename()
-  test_file = pkg_resources.resource_filename(__name__,
-  'data/test-mobio.ivector')
-  features = pkg_resources.resource_filename(__name__,
-  'data/feats-mobio.npy')
+  test_file = pkg_resources.resource_filename(__name__, 'data/test-mobio.ivector')
+  features = pkg_resources.resource_filename(__name__, 'data/feats-mobio.npy')
 
   train_feats = np.load(features)
   test_feats = np.loadtxt(test_file)
@@ -109,7 +105,7 @@ def test_plda_score():
   # Score PLDA
   score = bob.kaldi.plda_score(test_feats, enrolled, temp_file)
 
-  assert np.allclose(score, [ -23.9922 ])
+  assert np.allclose(score, [ -23.9922 ], 1e-03, 1e-05)
 
 
 
