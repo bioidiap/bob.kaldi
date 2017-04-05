@@ -33,13 +33,6 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
 
     numpy.ndarray: The trained ubm model final.dubm.
 
-
-  Raises:
-
-    RuntimeError: if any problem was detected during the conversion.
-
-    IOError: if the binary to be executed does not exist
-
   """  
 
   # 1. Initialize a single diagonal GMM
@@ -309,13 +302,6 @@ def ubm_enroll(feats, ubm_file):
 
     numpy.ndarray: The enrolled GMM.
 
-
-  Raises:
-
-    RuntimeError: if any problem was detected during the conversion.
-
-    IOError: if the binary to be executed does not exist
-
   """  
   # 1. Accumulate stats for training a diagonal-covariance GMM.
   binary1 = 'gmm-global-acc-stats'
@@ -354,6 +340,18 @@ def ubm_enroll(feats, ubm_file):
 
 def gmm_score(feats, gmm_file, ubm_file):
   """Print out per-frame log-likelihoods for input utterance.
+  Parameters:
+
+    feats (numpy.ndarray): A 2D numpy ndarray object containing MFCCs.
+
+    ubm_file (string)    : A Kaldi global GMM.
+
+    gmm_file (string)    : A Kaldi adapted global GMM.
+
+  Returns:
+
+    float: The average of per-frame log-likelihoods.
+
   """  
 
   models = [
