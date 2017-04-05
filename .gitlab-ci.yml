@@ -142,6 +142,40 @@ deploy_linux_27:
   tags:
     - conda-linux
 
+# Linux + Python 3.4: Builds, tests and uploads wheel
+build_linux_34:
+  <<: *build_job
+  variables: &linux_34_build_variables
+    PYTHON_VERSION: "3.4"
+    WHEEL_TAG: "py3"
+  tags:
+    - conda-linux
+
+test_linux_34:
+  <<: *test_job
+  variables: *linux_34_build_variables
+  dependencies:
+    - build_linux_34
+  tags:
+    - conda-linux
+
+wheels_linux_34:
+  <<: *wheels_job
+  variables: *linux_34_build_variables
+  dependencies:
+    - build_linux_34
+  tags:
+    - conda-linux
+
+docs_linux_34:
+  <<: *docs_job
+  variables: *linux_34_build_variables
+  dependencies:
+    - build_linux_34
+  tags:
+    - conda-linux
+
+
 
 # Linux + Python 3.5: Builds, tests and uploads wheel
 build_linux_35:
@@ -177,22 +211,22 @@ docs_linux_35:
     - conda-linux
 
 
-# Linux + Python 3.6: Builds and tests
-build_linux_36:
-  <<: *build_job
-  variables: &linux_36_build_variables
-    PYTHON_VERSION: "3.6"
-    WHEEL_TAG: "py3"
-  tags:
-    - conda-linux
+# # Linux + Python 3.6: Builds and tests
+# build_linux_36:
+#   <<: *build_job
+#   variables: &linux_36_build_variables
+#     PYTHON_VERSION: "3.6"
+#     WHEEL_TAG: "py3"
+#   tags:
+#     - conda-linux
 
-test_linux_36:
-  <<: *test_job
-  variables: *linux_36_build_variables
-  dependencies:
-    - build_linux_36
-  tags:
-    - conda-linux
+# test_linux_36:
+#   <<: *test_job
+#   variables: *linux_36_build_variables
+#   dependencies:
+#     - build_linux_36
+#   tags:
+#     - conda-linux
 
 
 # # Mac OSX + Python 2.7: Builds and tests

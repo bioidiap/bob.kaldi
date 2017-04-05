@@ -353,25 +353,7 @@ def ubm_enroll(feats, ubm_file):
   # gmm-global-acc-stats /idiap/temp/mcernak/mobio/mobio_kaldi_norm/Projector.hdf5 ark,t:feats.txt - | ../../Tools/kaldi/src/gmmbin/global-gmm-adapt-map --update-flags="m" /idiap/temp/mcernak/mobio/mobio_kaldi_norm/Projector.hdf5 - spk.ubm
 
 def gmm_score(feats, gmm_file, ubm_file):
-  """Print out per-frame log-likelihoods for each utterance
-
-  Parameters:
-
-    feats (numpy.ndarray): A 2D numpy ndarray object containing MFCCs.
-    ubm_file (string)    : A Kaldi (spk.-dep.) global GMM.
-
-
-  Returns:
-
-    float: The score.
-
-
-  Raises:
-
-    RuntimeError: if any problem was detected during the conversion.
-
-    IOError: if the binary to be executed does not exist
-
+  """Print out per-frame log-likelihoods for input utterance.
   """  
 
   models = [
