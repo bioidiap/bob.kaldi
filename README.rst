@@ -1,6 +1,6 @@
 .. vim: set fileencoding=utf-8 :
-.. Andre Anjos <andre.anjos@idiap.ch>
-.. Mon 11 Jul 2016 10:17:59 CEST
+.. Milos Cernak <milos.cernak@idiap.ch>
+.. Tue Apr  4 15:28:26 CEST 2017
 
 ===========================
  Python Bindings for Kaldi

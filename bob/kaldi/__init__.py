@@ -4,7 +4,7 @@ from .gmm import ubm_train
 from .gmm import ubm_full_train
 from .gmm import ubm_enroll
 from .gmm import gmm_score
-from .gmm import gmm_score_fast
+# from .gmm import gmm_score_fast
 from .ivector import ivector_train
 from .ivector import ivector_extract
 from .ivector import plda_train

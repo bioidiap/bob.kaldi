@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
-# Andre Anjos <andre.anjos@idiap.ch>
-# Mon 11 Jul 2016 10:20:55 CEST
+# Milos Cernak <milos.cernak@idiap.ch>
 
 """A package that contains helpers for Kaldi tool usage in Python environments
 """
@@ -21,9 +20,9 @@ setup(
     version=version,
     description="Kaldi Python bindings for BEAT",
     url='http://gitlab.idiap.ch/biometric/bob.kaldi',
-    license="GPLv3",
-    author='Marc Ferras Font',
-    author_email='marc.ferras@idiap.ch',
+    license="BSD",
+    author='Milos Cernak',
+    author_email='milo.cernak@idiap.ch',
     long_description=open('README.rst').read(),
 
     packages=find_packages(),
@@ -42,7 +41,7 @@ setup(
       'Framework :: Bob',
       'Development Status :: 4 - Beta',
       'Intended Audience :: Developers',
-      'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+      'License :: OSI Approved :: BSD License',
       'Natural Language :: English',
       'Programming Language :: Python',
       'Programming Language :: Python :: 3',

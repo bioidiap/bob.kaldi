@@ -8,7 +8,6 @@ import os
 import numpy as np
 
 from . import io
-from . import utils
 
 from subprocess import PIPE, Popen
 # import subprocess
@@ -48,11 +47,11 @@ def mfcc (data, rate=8000, preemphasis_coefficient=0.97, raw_energy=True, frame_
   """
 
   name = 'abc'
-  binary1 = join(io.kaldi_path(),'src', 'featbin', 'compute-mfcc-feats')
+  binary1 = 'compute-mfcc-feats'
   cmd1 = [binary1]
-  binary2 = join(io.kaldi_path(),'src', 'featbin', 'add-deltas')
+  binary2 = 'add-deltas'
   cmd2 = [binary2]  
-  binary3 = join(io.kaldi_path(),'src', 'featbin', 'apply-cmvn-sliding')
+  binary3 = 'apply-cmvn-sliding'
   cmd3 = [binary3]
 
   # compute features plus deltas and sliding cmvn into the ark file
@@ -130,11 +129,11 @@ def mfcc_from_path(filename, channel=0, preemphasis_coefficient=0.97, raw_energy
   """
 
   name = 'abc'
-  binary1 = join(io.kaldi_path(),'src', 'featbin', 'compute-mfcc-feats')
+  binary1 = 'compute-mfcc-feats'
   cmd1 = [binary1]
-  binary2 = join(io.kaldi_path(),'src', 'featbin', 'add-deltas')
+  binary2 = 'add-deltas'
   cmd2 = [binary2]  
-  binary3 = join(io.kaldi_path(),'src', 'featbin', 'apply-cmvn-sliding')
+  binary3 = 'apply-cmvn-sliding'
   cmd3 = [binary3]
 
   # compute features into the ark file

@@ -9,11 +9,9 @@ import os
 import numpy as np
 
 from . import io
-from . import utils
 
 from subprocess import PIPE, Popen
 from os.path import join
-# from math import exp
 import tempfile
 import shutil
 
@@ -47,7 +45,7 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
   """  
 
   # 1. Initialize a single diagonal GMM
-  binary1 = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-global-init-from-feats')
+  binary1 = 'gmm-global-init-from-feats'
   cmd1 = [binary1]
   cmd1 += [
     '--num-threads=' + str(num_threads),
@@ -78,7 +76,7 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
   # 2. Store Gaussian selection indices on disk-- this speeds up the
   # training passes.
   # subsample-feats --n=$subsample ark:- ark:- |"
-  binary = join(io.kaldi_path(),'src', 'featbin', 'subsample-feats')
+  binary = 'subsample-feats'
   cmd = [binary]
   with tempfile.NamedTemporaryFile(suffix='.ark') as arkfile:
     cmd += [
@@ -95,7 +93,7 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
         logger.debug("%s", logtxt)
         
     with tempfile.NamedTemporaryFile(delete=False, suffix='.gz') as gselfile:
-      binary2 = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-gselect')
+      binary2 = 'gmm-gselect'
       cmd2 = [binary2]
       cmd2 += [
         '--n=' + str(num_gselect),
@@ -119,7 +117,7 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
       logger.info("Training pass " + str(x))
       # Accumulate stats.
       with tempfile.NamedTemporaryFile(suffix='.acc') as accfile:
-        binary3 = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-global-acc-stats')
+        binary3 = 'gmm-global-acc-stats'
         cmd3 = [binary3]
         cmd3 += [
           '--gselect=ark,s,cs:gunzip -c ' + gselfile.name + '|',
@@ -142,7 +140,7 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
         else:
           opt = '--remove-low-count-gaussians=true'
 
-        binary4 = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-global-est')
+        binary4 = 'gmm-global-est'
         cmd4 = [binary4]
         with tempfile.NamedTemporaryFile(delete=False, suffix='.dump') as estfile:
           cmd4 += [
@@ -178,7 +176,7 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4, min_gaussian_we
 
   # 1. Init (diagonal GMM to full-cov. GMM)
   # gmm-global-to-fgmm $srcdir/final.dubm $dir/0.ubm || exit 1;
-  binary1 = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-global-to-fgmm')
+  binary1 = 'gmm-global-to-fgmm'
   cmd1 = [binary1]
   inModel=''
   with tempfile.NamedTemporaryFile(delete=False, suffix='.ubm') as initfile:
@@ -198,7 +196,7 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4, min_gaussian_we
   # 2. doing Gaussian selection (using diagonal form of model; selecting $num_gselect indices)
   # gmm-gselect --n=$num_gselect "fgmm-global-to-gmm $dir/0.ubm - |" "$feats" \
   #   "ark:|gzip -c >$dir/gselect.JOB.gz" || exit 1;
-  binary2 = join(io.kaldi_path(),'src', 'fgmmbin', 'fgmm-global-to-gmm')
+  binary2 = 'fgmm-global-to-gmm'
   cmd2 = [binary2]
   with tempfile.NamedTemporaryFile(suffix='.dubm') as dubmfile:
     cmd2 += [
@@ -213,7 +211,7 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4, min_gaussian_we
         logger.debug("%s", logtxt)
 
     # subsample-feats --n=$subsample ark:- ark:- |"
-    binary = join(io.kaldi_path(),'src', 'featbin', 'subsample-feats')
+    binary = 'subsample-feats'
     cmd = [binary]
     with tempfile.NamedTemporaryFile(suffix='.ark') as arkfile:
       cmd += [
@@ -229,7 +227,7 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4, min_gaussian_we
           logtxt = fp.read()
           logger.debug("%s", logtxt)
 
-      binary3 = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-gselect')
+      binary3 = 'gmm-gselect'
       cmd3 = [binary3]
       with tempfile.NamedTemporaryFile(suffix='.gz') as gselfile:
         cmd3 += [
@@ -252,7 +250,7 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4, min_gaussian_we
           logger.info("Training pass " + str(x))
           # Accumulate stats.
           with tempfile.NamedTemporaryFile(suffix='.acc') as accfile:
-            binary4 = join(io.kaldi_path(),'src', 'fgmmbin', 'fgmm-global-acc-stats')
+            binary4 = 'fgmm-global-acc-stats'
             cmd4 = [binary4]
             cmd4 += [
               '--gselect=ark,s,cs:gunzip -c ' + gselfile.name + '|',
@@ -275,7 +273,7 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4, min_gaussian_we
             else:
               opt = '--remove-low-count-gaussians=true'
 
-            binary5 = join(io.kaldi_path(),'src', 'fgmmbin', 'fgmm-global-est')
+            binary5 = 'fgmm-global-est'
             cmd5 = [binary5]
             with tempfile.NamedTemporaryFile(delete=False, suffix='.dump') as estfile:
               cmd5 += [
@@ -323,14 +321,14 @@ def ubm_enroll(feats, ubm_file):
 
   """  
   # 1. Accumulate stats for training a diagonal-covariance GMM.
-  binary1 = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-global-acc-stats')
+  binary1 = 'gmm-global-acc-stats'
   cmd1 = [binary1]
   cmd1 += [
     ubm_file,
     'ark:-',
     '-',
   ]
-  binary2 = join(io.kaldi_path(),'src', 'gmmbin', 'global-gmm-adapt-map')
+  binary2 = 'global-gmm-adapt-map'
   cmd2 = [binary2]
   with tempfile.NamedTemporaryFile(delete=False, suffix='.ubm') as estfile:
     cmd2 += [
@@ -389,7 +387,7 @@ def gmm_score(feats, gmm_file, ubm_file):
   # import ipdb; ipdb.set_trace()
   for i, m in enumerate(models):
     # 1. Accumulate stats for training a diagonal-covariance GMM.
-    binary1 = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-global-get-frame-likes')
+    binary1 = 'gmm-global-get-frame-likes'
     cmd1 = [binary1]
     cmd1 += [
       '--average=true',
@@ -416,90 +414,90 @@ def gmm_score(feats, gmm_file, ubm_file):
 
   return ret[0]-ret[1]
 
-def gmm_score_fast(feats, gmm_file, ubm_file):
-  """Print out per-frame log-likelihoods for each utterance, as an archive
-  of vectors of floats.  If --average=true, prints out the average per-frame
-  log-likelihood for each utterance, as a single float.
+# def gmm_score_fast(feats, gmm_file, ubm_file):
+#   """Print out per-frame log-likelihoods for each utterance, as an archive
+#   of vectors of floats.  If --average=true, prints out the average per-frame
+#   log-likelihood for each utterance, as a single float.
 
-  Parameters:
+#   Parameters:
 
-    feats (numpy.ndarray): A 2D numpy ndarray object containing MFCCs.
-    ubm_file (string)    : A Kaldi (spk.-dep.) global GMM.
-
-
-  Returns:
-
-    float: The score.
+#     feats (numpy.ndarray): A 2D numpy ndarray object containing MFCCs.
+#     ubm_file (string)    : A Kaldi (spk.-dep.) global GMM.
 
 
-  Raises:
+#   Returns:
 
-    RuntimeError: if any problem was detected during the conversion.
+#     float: The score.
 
-    IOError: if the binary to be executed does not exist
 
-  """  
+#   Raises:
 
-# gmm-gselect --n=10  \
-#     ubm.gmm \
-#     "$feats" \
-#     ark:gselect.ark
+#     RuntimeError: if any problem was detected during the conversion.
 
-# gmm-compute-likes-gmmubm \
-# --average=true --gselect="ark:gselect.ark" 
-# adapted.gmm \
-# ubm.gmm \
-# "$feats" ark,t:score.ark
+#     IOError: if the binary to be executed does not exist
 
-  ret=0
-  with tempfile.NamedTemporaryFile(suffix='.ark') as gselfile:
-    # 1. Accumulate stats for training a diagonal-covariance GMM.
-    binary1 = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-gselect')
-    cmd1 = [binary1]
-    cmd1 += [
-      '--n=10',
-      ubm_file,
-      'ark:-',
-      'ark:' + gselfile.name,
-    ]
-    with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
-      pipe1 = Popen (cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
-      # write ark file into pipe1.stdin
-      io.write_mat(pipe1.stdin, feats, key='abc')
-      pipe1.stdin.close()
-      # pipe1.communicate()
+#   """  
 
-      with open(logfile.name) as fp:
-        logtxt = fp.read()
-        logger.debug("%s", logtxt)
+# # gmm-gselect --n=10  \
+# #     ubm.gmm \
+# #     "$feats" \
+# #     ark:gselect.ark
 
-    binary2 = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-compute-likes-gmmubm')
-    cmd2 = [binary2]
-    cmd2 += [
-      '--average=true',
-      '--gselect=ark:' + gselfile.name,
-      gmm_file,
-      ubm_file,
-      'ark:-',
-      'ark,t:-',
-    ]
-    with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
-      pipe2 = Popen (cmd2, stdin=PIPE, stdout=PIPE, stderr=logfile)
-      # write ark file into pipe1.stdin
-      io.write_mat(pipe2.stdin, feats, key='abc')
-      pipe2.stdin.close()
-      # pipe2.communicate()
+# # gmm-compute-likes-gmmubm \
+# # --average=true --gselect="ark:gselect.ark" 
+# # adapted.gmm \
+# # ubm.gmm \
+# # "$feats" ark,t:score.ark
 
-      with open(logfile.name) as fp:
-        logtxt = fp.read()
-        logger.debug("%s", logtxt)
+#   ret=0
+#   with tempfile.NamedTemporaryFile(suffix='.ark') as gselfile:
+#     # 1. Accumulate stats for training a diagonal-covariance GMM.
+#     binary1 = 'gmm-gselect'
+#     cmd1 = [binary1]
+#     cmd1 += [
+#       '--n=10',
+#       ubm_file,
+#       'ark:-',
+#       'ark:' + gselfile.name,
+#     ]
+#     with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+#       pipe1 = Popen (cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
+#       # write ark file into pipe1.stdin
+#       io.write_mat(pipe1.stdin, feats, key='abc')
+#       pipe1.stdin.close()
+#       # pipe1.communicate()
+
+#       with open(logfile.name) as fp:
+#         logtxt = fp.read()
+#         logger.debug("%s", logtxt)
+
+#     binary2 = 'gmm-compute-likes-gmmubm'
+#     cmd2 = [binary2]
+#     cmd2 += [
+#       '--average=true',
+#       '--gselect=ark:' + gselfile.name,
+#       gmm_file,
+#       ubm_file,
+#       'ark:-',
+#       'ark,t:-',
+#     ]
+#     with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+#       pipe2 = Popen (cmd2, stdin=PIPE, stdout=PIPE, stderr=logfile)
+#       # write ark file into pipe1.stdin
+#       io.write_mat(pipe2.stdin, feats, key='abc')
+#       pipe2.stdin.close()
+#       # pipe2.communicate()
+
+#       with open(logfile.name) as fp:
+#         logtxt = fp.read()
+#         logger.debug("%s", logtxt)
         
-      # read ark from pipe1.stdout
-      # import ipdb; ipdb.set_trace()
-      rettxt = pipe2.stdout.readline().split()
-      if len(rettxt) > 1:
-        ret = rettxt[1]
-      else:
-        logger.debug("ERROR in gmm_score_fast; outputting score 0")
+#       # read ark from pipe1.stdout
+#       # import ipdb; ipdb.set_trace()
+#       rettxt = pipe2.stdout.readline().split()
+#       if len(rettxt) > 1:
+#         ret = rettxt[1]
+#       else:
+#         logger.debug("ERROR in gmm_score_fast; outputting score 0")
 
-  return float(ret)
+#   return float(ret)

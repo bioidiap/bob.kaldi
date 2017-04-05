@@ -109,7 +109,7 @@ def test_plda_score():
   # Score PLDA
   score = bob.kaldi.plda_score(test_feats, enrolled, temp_file)
 
-  assert np.allclose(score, [ -8.676908 ])
+  assert np.allclose(score, [ -23.9922 ])
 
 
 

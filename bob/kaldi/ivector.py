@@ -9,11 +9,9 @@ import os
 import numpy as np
 
 from . import io
-from . import utils
 
 from subprocess import PIPE, Popen
 from os.path import join
-# from math import exp
 import tempfile
 import shutil
 
@@ -36,7 +34,7 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600, use_we
         io.write_mat(f, feats, key='utt0')
           
   # Initialize the i-vector extractor using the FGMM input
-  binary1 = join(io.kaldi_path(),'src', 'fgmmbin', 'fgmm-global-to-gmm')
+  binary1 = 'fgmm-global-to-gmm'
   cmd1 = [binary1]
   with tempfile.NamedTemporaryFile(delete=False, suffix='.dubm') as dubmfile:
     cmd1 += [
@@ -50,7 +48,7 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600, use_we
         logtxt = fp.read()
         logger.debug("%s", logtxt)
 
-  binary2 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-extractor-init')
+  binary2 = 'ivector-extractor-init'
   cmd2 = [binary2]
   with tempfile.NamedTemporaryFile(delete=False, suffix='.ie') as iefile:
     cmd2 += [
@@ -72,7 +70,7 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600, use_we
   # fgmm-global-gselect-to-post --min-post=$min_post $dir/final.ubm "$feats" \
   # ark,s,cs:-  ark:- \| \
   # scale-post ark:- $posterior_scale "ark:|gzip -c >$dir/post.JOB.gz"
-  binary3 = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-gselect')
+  binary3 = 'gmm-gselect'
   cmd3 = [binary3]
   with tempfile.NamedTemporaryFile(suffix='.gsel') as gselfile:
     cmd3 += [
@@ -90,7 +88,7 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600, use_we
         logger.debug("%s", logtxt)
 
     with tempfile.NamedTemporaryFile(suffix='.post.gz') as postfile:
-      binary4 = join(io.kaldi_path(),'src', 'fgmmbin', 'fgmm-global-gselect-to-post')
+      binary4 = 'fgmm-global-gselect-to-post'
       cmd4 = [binary4]
       cmd4 += [
         '--min-post=' + str(min_post),
@@ -100,7 +98,7 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600, use_we
         'ark:-',
       ]
       # 'ark,s,cs:' + gselfile.name,
-      binary5 = join(io.kaldi_path(),'src', 'bin', 'scale-post')
+      binary5 = 'scale-post'
       cmd5 = [binary5]
       cmd5 += [
         'ark:-',
@@ -123,7 +121,7 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600, use_we
         logger.info("Training pass " + str(x))
         # Accumulate stats.
         with tempfile.NamedTemporaryFile(suffix='.acc') as accfile:
-          binary6 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-extractor-acc-stats')
+          binary6 = 'ivector-extractor-acc-stats'
           cmd6 = [binary6]
           cmd6 += [
             '--num-threads=4',
@@ -143,7 +141,7 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600, use_we
               logtxt = fp.read()
               logger.debug("%s", logtxt)
           
-          binary7 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-extractor-est')
+          binary7 = 'ivector-extractor-est'
           cmd7 = [binary7]
           with tempfile.NamedTemporaryFile(delete=False, suffix='.ie') as estfile:
             cmd7 += [
@@ -177,7 +175,7 @@ def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025, poste
   fgmm_model=projector_file+'.fubm'
 
   # Initialize the i-vector extractor using the FGMM input
-  binary1 = join(io.kaldi_path(),'src', 'fgmmbin', 'fgmm-global-to-gmm')
+  binary1 = 'fgmm-global-to-gmm'
   cmd1 = [binary1]
   with tempfile.NamedTemporaryFile(delete=False, suffix='.dubm') as dubmfile:
     cmd1 += [
@@ -191,7 +189,7 @@ def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025, poste
         logtxt = fp.read()
         logger.debug("%s", logtxt)
 
-  binary = join(io.kaldi_path(),'src', 'gmmbin', 'gmm-gselect')
+  binary = 'gmm-gselect'
   cmd = [binary]
   with tempfile.NamedTemporaryFile(suffix='.gsel') as gselfile:
     cmd += [
@@ -209,7 +207,7 @@ def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025, poste
         logger.debug("%s", logtxt)
         
     with tempfile.NamedTemporaryFile(suffix='.post') as postfile:
-      binary2 = join(io.kaldi_path(),'src', 'fgmmbin', 'fgmm-global-gselect-to-post')
+      binary2 = 'fgmm-global-gselect-to-post'
       cmd2 = [binary2]
       cmd2 += [
         '--min-post=' + str(min_post),
@@ -218,7 +216,7 @@ def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025, poste
         'ark,s,cs:' + gselfile.name,
         'ark:-',
       ]
-      binary3 = join(io.kaldi_path(),'src', 'bin', 'scale-post')
+      binary3 = 'scale-post'
       cmd3 = [binary3]
       cmd3 += [
         'ark:-',
@@ -236,7 +234,7 @@ def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025, poste
           logtxt = fp.read()
           logger.debug("%s", logtxt)
           
-      binary4 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-extract')
+      binary4 = 'ivector-extract'
       cmd4 = [binary4]
       cmd4 += [
         projector_file+'.ie',
@@ -285,13 +283,13 @@ def plda_train(feats, enroller_file):
           spkfile.write("\n")
           i += 1
 
-  binary1 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-normalize-length')
+  binary1 = 'ivector-normalize-length'
   cmd1 = [binary1]
   cmd1 += [
     'ark:'+arkfile.name,
     'ark:-',
   ]
-  binary2 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-compute-plda')
+  binary2 = 'ivector-compute-plda'
   cmd2 = [binary2]
   
   with tempfile.NamedTemporaryFile(suffix='.plda') as pldafile:
@@ -315,7 +313,7 @@ def plda_train(feats, enroller_file):
   # ivector-normalize-length scp:${plda_ivec_dir}/ivector.scp \
   # ark:- \| ivector-mean ark:- ${plda_ivec_dir}/mean.vec || exit 1;
   # import ipdb; ipdb.set_trace()
-  binary3 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-mean')
+  binary3 = 'ivector-mean'
   cmd3 = [binary3]
   with tempfile.NamedTemporaryFile(suffix='.mean') as meanfile:
     cmd3 += [
@@ -361,33 +359,33 @@ def plda_enroll(feats, enroller_file):
         spkfile.write("\n")
         i += 1
 
-  binary1 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-normalize-length')
+  binary1 = 'ivector-normalize-length'
   cmd1 = [binary1]
   cmd1 += [
     'ark:'+arkfile.name,
     'ark:-',
   ]
-  binary2 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-mean')
+  binary2 = 'ivector-mean'
   cmd2 = [binary2]
   cmd2 += [
     'ark,t:'+spkfile.name,
     'ark:-',
     'ark:-',
   ]
-  binary3 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-normalize-length')
+  binary3 = 'ivector-normalize-length'
   cmd3 = [binary3]
   cmd3 += [
     'ark:-',
     'ark:-',
   ]
-  binary4 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-subtract-global-mean')
+  binary4 = 'ivector-subtract-global-mean'
   cmd4 = [binary4]
   cmd4 += [
     enroller_file+'.plda.mean',
     'ark:-',
     'ark:-',
   ]
-  binary5 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-normalize-length')
+  binary5 = 'ivector-normalize-length'
   cmd5 = [binary5]
   with tempfile.NamedTemporaryFile(delete=False, suffix='.ark') as spkarkfile:
     cmd5 += [
@@ -425,25 +423,25 @@ def plda_score(feats, model, ubm):
   logger.debug("-> PLDA scoring")
   # 1.
 
-  binary1 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-copy-plda')
+  binary1 = 'ivector-copy-plda'
   cmd1 = [binary1]
 
   # tests/probes
-  binary2 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-normalize-length')
+  binary2 = 'ivector-normalize-length'
   cmd2 = [binary2]
   cmd2 += [
     'ark:-',
     'ark:-',
   ]
 
-  binary2 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-subtract-global-mean')
+  binary2 = 'ivector-subtract-global-mean'
   cmd2 = [binary2]
   cmd2 += [
     ubm+'.plda.mean',
     'ark:-',
     'ark:-',
   ]
-  binary3 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-normalize-length')
+  binary3 = 'ivector-normalize-length'
   cmd3 = [binary3]
   cmd3 += [
     'ark:-',
@@ -451,7 +449,7 @@ def plda_score(feats, model, ubm):
   ]
 
   # scoring
-  binary4 = join(io.kaldi_path(),'src', 'ivectorbin', 'ivector-plda-scoring')
+  binary4 = 'ivector-plda-scoring'
   cmd4 = [binary4]
   with tempfile.NamedTemporaryFile(delete=False, suffix='.trials') as trials:
     trials.write("spk0 spk1\n")
