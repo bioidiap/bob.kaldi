@@ -52,7 +52,7 @@ def read_key(fd):
     char = fd.read(1)
     if char == '' : break
     if char == ' ' : break
-    str += char
+    str += char.decode('utf-8')
   str = str.strip()
   if str == '': return None # end of file,
   assert(re.match('^[\.a-zA-Z0-9_-]+$',str) != None) # check format,
@@ -127,7 +127,8 @@ def write_vec_int(file_or_fd, v, key=''):
   """
   fd = open_or_fd(file_or_fd, mode='wb')
   try:
-    if key != '' : fd.write(key+' ') # ark-files have keys (utterance-id),
+    keyd=key+' '
+    if key != '' : fd.write(keyd.decode('utf-8')) # ark-files have keys (utterance-id),
     fd.write('\0B') # we write binary!
     # dim,
     fd.write('\4') # int32 type,
@@ -211,7 +212,8 @@ def write_vec_flt(file_or_fd, v, key=''):
   """
   fd = open_or_fd(file_or_fd, mode='wb')
   try:
-    if key != '' : fd.write(key+' ') # ark-files have keys (utterance-id),
+    keyd=key+' '
+    if key != '' : fd.write(keyd.decode('utf-8')) # ark-files have keys (utterance-id),
     fd.write('\0B') # we write binary!
     # Data-type,
     if v.dtype == 'float32': fd.write('FV ')
@@ -342,7 +344,8 @@ def write_mat(file_or_fd, m, key=''):
   """
   fd = open_or_fd(file_or_fd, mode='wb')
   try:
-    if key != '' : fd.write(key+' ') # ark-files have keys (utterance-id),
+    keyd=key+' '
+    if key != '' : fd.write(keyd.decode('utf-8')) # ark-files have keys (utterance-id),
     fd.write('\0B') # we write binary!
     # Data-type,
     if m.dtype == 'float32': fd.write('FM ')
@@ -511,10 +514,10 @@ def write_wav(fp, data, rate, bitdepth=16):
   subchunk2size = num_chan * num_samp * bytes_per_samp
   chunk_size = 36 + subchunk2size
 
-  fp.write('RIFF')
+  fp.write(b'RIFF')
   fp.write(np.array(chunk_size,dtype='int32'))
-  fp.write('WAVE')
-  fp.write('fmt ')
+  fp.write(b'WAVE')
+  fp.write(b'fmt ')
   fp.write(np.array(16,dtype='int32'))
   # wFormatTag, 1 for PCM, 3 for IEEE_FLOAT
   # Kaldi will only read PCM wav files
@@ -527,7 +530,7 @@ def write_wav(fp, data, rate, bitdepth=16):
   fp.write(np.array(num_chan * bytes_per_samp,dtype='int16'))
   fp.write(np.array(8 * bytes_per_samp,dtype='int16'))
 
-  fp.write('data')
+  fp.write(b'data')
   fp.write(np.array(subchunk2size,dtype='int32'))
 
   # import pdb; pdb.set_trace()
