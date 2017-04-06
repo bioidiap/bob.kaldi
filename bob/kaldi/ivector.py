@@ -266,7 +266,7 @@ def plda_train(feats, enroller_file):
   logger.debug("-> PLDA calculation")
   # 1. Create Kaldi training data structure
   # import ipdb; ipdb.set_trace()
-  with tempfile.NamedTemporaryFile(delete=False, suffix='.spk2utt') as spkfile:
+  with tempfile.NamedTemporaryFile(mode='w+t', suffix='.spk2utt', delete=False) as spkfile:
     with tempfile.NamedTemporaryFile(delete=False, suffix='.ark') as arkfile:
       i=0
       with open(arkfile.name,'wb') as f:
@@ -343,7 +343,7 @@ def plda_enroll(feats, enroller_file):
   # ivector-normalize-length ark:- ark,scp:$dir/spk_ivector.ark,$dir/spk_ivector
   logger.debug("-> PLDA enrollment")
   # 1. Create Kaldi training data structure
-  with tempfile.NamedTemporaryFile(delete=False, suffix='.spk2utt') as spkfile:
+  with tempfile.NamedTemporaryFile(mode='w+t', suffix='.spk2utt', delete=False) as spkfile:
     with tempfile.NamedTemporaryFile(delete=False, suffix='.ark') as arkfile:
       i=0
       with open(arkfile.name,'wb') as f:
@@ -451,7 +451,7 @@ def plda_score(feats, model, ubm):
   # scoring
   binary4 = 'ivector-plda-scoring'
   cmd4 = [binary4]
-  with tempfile.NamedTemporaryFile(delete=False, suffix='.trials') as trials:
+  with tempfile.NamedTemporaryFile(mode='w+t', suffix='.trials', delete=False) as trials:
     trials.write("spk0 spk1\n")
 
   ret=0

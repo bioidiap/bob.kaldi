@@ -39,7 +39,6 @@ def mfcc (data, rate=8000, preemphasis_coefficient=0.97, raw_energy=True, frame_
 
   """
 
-  name = 'abc'
   binary1 = 'compute-mfcc-feats'
   cmd1 = [binary1]
   binary2 = 'add-deltas'
@@ -84,7 +83,7 @@ def mfcc (data, rate=8000, preemphasis_coefficient=0.97, raw_energy=True, frame_
     pipe3 = Popen (cmd3, stdout=PIPE, stdin=pipe2.stdout, stderr=fnull)
 
     # write wav file name (as if it were a Kaldi ark file)
-    pipe1.stdin.write (name + ' ')
+    pipe1.stdin.write (b'abc ')
     # write WAV file in 16-bit format
     io.write_wav (pipe1.stdin, data, rate)
     pipe1.stdin.close()
@@ -114,7 +113,6 @@ def mfcc_from_path(filename, channel=0, preemphasis_coefficient=0.97, raw_energy
 
   """
 
-  name = 'abc'
   binary1 = 'compute-mfcc-feats'
   cmd1 = [binary1]
   binary2 = 'add-deltas'
@@ -156,7 +154,8 @@ def mfcc_from_path(filename, channel=0, preemphasis_coefficient=0.97, raw_energy
     pipe3 = Popen (cmd3, stdout=PIPE, stdin=pipe2.stdout, stderr=fnull)
 
     # write scp file into pipe.stdin
-    pipe1.stdin.write (name + ' ' + filename)
+    strwrite = 'abc ' + filename
+    pipe1.stdin.write (strwrite.encode('utf-8'))
     pipe1.stdin.close()
     # pipe3.communicate()
 
