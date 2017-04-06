@@ -47,12 +47,12 @@ def read_key(fd):
   """ [str] = read_key(fd)
    Read the utterance-key from the opened ark/stream descriptor 'fd'.
   """
-  str = ''
+  str = b''
   while 1:
     char = fd.read(1)
     if char == '' : break
     if char == ' ' : break
-    str += char.decode()
+    str += char
   str = str.strip()
   if str == '': return None # end of file,
   assert(re.match('^[\.a-zA-Z0-9_-]+$',str) != None) # check format,
@@ -220,7 +220,7 @@ def write_vec_flt(file_or_fd, v, key=''):
     elif v.dtype == 'float64': fd.write(b'DV ')
     else: raise VectorDataTypeError
     # Dim,
-    fd.write('\04')
+    fd.write(b'\04')
     fd.write(struct.pack('I',v.shape[0])) # dim
     # Data,
     v.tofile(fd, sep="") # binary
@@ -352,9 +352,9 @@ def write_mat(file_or_fd, m, key=''):
     elif m.dtype == 'float64': fd.write('DM ')
     else: raise MatrixDataTypeError
     # Dims,
-    fd.write('\04')
+    fd.write(b'\04')
     fd.write(struct.pack('I',m.shape[0])) # rows
-    fd.write('\04')
+    fd.write(b'\04')
     fd.write(struct.pack('I',m.shape[1])) # cols
     # Data,
     m.tofile(fd, sep="") # binary
