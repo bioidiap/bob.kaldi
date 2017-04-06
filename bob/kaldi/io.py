@@ -52,7 +52,7 @@ def read_key(fd):
     char = fd.read(1)
     if char == '' : break
     if char == ' ' : break
-    str += char.decode('utf-8')
+    str += char.encode('utf-8')
   str = str.strip()
   if str == '': return None # end of file,
   assert(re.match('^[\.a-zA-Z0-9_-]+$',str) != None) # check format,
@@ -128,7 +128,7 @@ def write_vec_int(file_or_fd, v, key=''):
   fd = open_or_fd(file_or_fd, mode='wb')
   try:
     keyd=key+' '
-    if key != '' : fd.write(keyd.decode('utf-8')) # ark-files have keys (utterance-id),
+    if key != '' : fd.write(keyd.encode('utf-8')) # ark-files have keys (utterance-id),
     fd.write('\0B') # we write binary!
     # dim,
     fd.write('\4') # int32 type,
@@ -213,7 +213,7 @@ def write_vec_flt(file_or_fd, v, key=''):
   fd = open_or_fd(file_or_fd, mode='wb')
   try:
     keyd=key+' '
-    if key != '' : fd.write(keyd.decode('utf-8')) # ark-files have keys (utterance-id),
+    if key != '' : fd.write(keyd.encode('utf-8')) # ark-files have keys (utterance-id),
     fd.write('\0B') # we write binary!
     # Data-type,
     if v.dtype == 'float32': fd.write('FV ')
@@ -345,7 +345,7 @@ def write_mat(file_or_fd, m, key=''):
   fd = open_or_fd(file_or_fd, mode='wb')
   try:
     keyd=key+' '
-    if key != '' : fd.write(keyd.decode('utf-8')) # ark-files have keys (utterance-id),
+    if key != '' : fd.write(keyd.encode('utf-8')) # ark-files have keys (utterance-id),
     fd.write('\0B') # we write binary!
     # Data-type,
     if m.dtype == 'float32': fd.write('FM ')
