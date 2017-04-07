@@ -223,7 +223,7 @@ def write_vec_flt(file_or_fd, v, key=''):
     fd.write(b'\04')
     fd.write(struct.pack('I',v.shape[0])) # dim
     # Data,
-    v.tofile(fd, sep=b"") # binary
+    v.tofile(fd, sep="") # binary
   finally:
     if fd is not file_or_fd : fd.close()
 
@@ -283,10 +283,10 @@ def read_mat(file_or_fd):
   fd = open_or_fd(file_or_fd)
   try:
     binary = fd.read(2)
-    if binary == '\0B' :
+    if binary == b'\0B' :
       mat = _read_mat_binary(fd)
     else:
-      assert(binary == ' [')
+      assert(binary == b' [')
       mat = _read_mat_ascii(fd)
   finally:
     if fd is not file_or_fd: fd.close()

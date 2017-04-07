@@ -484,7 +484,7 @@ def plda_score(feats, model, ubm):
       pipe2 = Popen (cmd2, stdin=PIPE, stdout=PIPE, stderr=logfile)
       pipe3 = Popen (cmd3, stdin=pipe2.stdout, stdout=PIPE, stderr=logfile)
       pipe4 = Popen (cmd4, stdin=pipe3.stdout, stdout=PIPE, stderr=logfile)
-      io.write_vec_flt(pipe2.stdin, feats, key='spk1')
+      io.write_vec_flt(pipe2.stdin, feats, key=b'spk1')
       pipe2.stdin.close()
       pipe4.communicate()
       with open(logfile.name) as fp:
