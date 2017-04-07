@@ -50,8 +50,8 @@ def read_key(fd):
   str = b''
   while 1:
     char = fd.read(1)
-    if char == '' : break
-    if char == ' ' : break
+    if char == b'' : break
+    if char == b' ' : break
     str += char
   str = str.strip()
   if str == '': return None # end of file,
