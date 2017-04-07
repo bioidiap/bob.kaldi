@@ -54,8 +54,8 @@ def read_key(fd):
     if char == b' ' : break
     str += char
   str = str.strip()
-  if str == '': return None # end of file,
-  assert(re.match('^[\.a-zA-Z0-9_-]+$',str) != None) # check format,
+  if str == b'': return None # end of file,
+  assert(re.match(b'^[\.a-zA-Z0-9_-]+$',str) != None) # check format,
   return str
 
 
@@ -223,7 +223,7 @@ def write_vec_flt(file_or_fd, v, key=''):
     fd.write(b'\04')
     fd.write(struct.pack('I',v.shape[0])) # dim
     # Data,
-    v.tofile(fd, sep="") # binary
+    v.tofile(fd, sep=b"") # binary
   finally:
     if fd is not file_or_fd : fd.close()
 

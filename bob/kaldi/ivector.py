@@ -400,7 +400,7 @@ def plda_enroll(feats, enroller_file):
       pipe4 = Popen (cmd4, stdin=pipe3.stdout, stdout=PIPE, stderr=logfile)
       pipe5 = Popen (cmd5, stdin=pipe4.stdout, stdout=PIPE, stderr=logfile)
       pipe5.communicate()
-      with open(logfile.name) as fp:
+      with open(logfile.name, 'rt') as fp:
         logtxt = fp.read()
         logger.debug("%s", logtxt)
 
