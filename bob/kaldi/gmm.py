@@ -57,7 +57,7 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
       pipe1 = Popen (cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
 
       # write ark file into pipe.stdin
-      io.write_mat(pipe1.stdin, feats, key='abc')
+      io.write_mat(pipe1.stdin, feats, key=b'abc')
       # pipe1.stdin.close()
       pipe1.communicate()
       with open(logfile.name) as fp:
@@ -77,7 +77,7 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
     ]
     with tempfile.NamedTemporaryFile(suffix='.log') as logfile: 
       pipe = Popen (cmd, stdin=PIPE, stdout=PIPE, stderr=logfile)
-      io.write_mat(pipe.stdin, feats, key='abc')
+      io.write_mat(pipe.stdin, feats, key=b'abc')
       pipe.communicate()
       with open(logfile.name) as fp:
         logtxt = fp.read()
@@ -211,7 +211,7 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4, min_gaussian_we
       ]
       with tempfile.NamedTemporaryFile(suffix='.log') as logfile: 
         pipe = Popen (cmd, stdin=PIPE, stdout=PIPE, stderr=logfile)
-        io.write_mat(pipe.stdin, feats, key='abc')
+        io.write_mat(pipe.stdin, feats, key=b'abc')
         pipe.communicate()
         with open(logfile.name) as fp:
           logtxt = fp.read()
@@ -326,7 +326,7 @@ def ubm_enroll(feats, ubm_file):
       pipe1 = Popen (cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
       pipe2 = Popen (cmd2, stdin=pipe1.stdout, stdout=PIPE, stderr=logfile)
       # write ark file into pipe1.stdin
-      io.write_mat(pipe1.stdin, feats, key='abc')
+      io.write_mat(pipe1.stdin, feats, key=b'abc')
       pipe1.stdin.close()
       pipe2.communicate()
 
@@ -374,7 +374,7 @@ def gmm_score(feats, gmm_file, ubm_file):
     with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
       pipe1 = Popen (cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
       # write ark file into pipe1.stdin
-      io.write_mat(pipe1.stdin, feats, key='abc')
+      io.write_mat(pipe1.stdin, feats, key=b'abc')
       pipe1.stdin.close()
       # pipe1.communicate()
       

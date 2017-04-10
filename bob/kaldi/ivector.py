@@ -29,9 +29,9 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600, use_we
       if feats.ndim == 3:
         for i,utt in enumerate(feats):
           uttid='utt'+str(i)
-          io.write_mat(f, utt, key=uttid)
+          io.write_mat(f, utt, key=uttid.encode('utf-8'))
       else:
-        io.write_mat(f, feats, key='utt0')
+        io.write_mat(f, feats, key=b'utt0')
           
   # Initialize the i-vector extractor using the FGMM input
   binary1 = 'fgmm-global-to-gmm'
@@ -200,7 +200,7 @@ def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025, poste
     ]
     with tempfile.NamedTemporaryFile(suffix='.log') as logfile: 
       pipe = Popen (cmd, stdin=PIPE, stdout=PIPE, stderr=logfile)
-      io.write_mat(pipe.stdin, feats, key='abc')
+      io.write_mat(pipe.stdin, feats, key=b'abc')
       pipe.communicate()
       with open(logfile.name) as fp:
         logtxt = fp.read()
@@ -227,7 +227,7 @@ def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025, poste
       with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
         pipe2 = Popen (cmd2, stdin=PIPE, stdout=PIPE, stderr=logfile)
         pipe3 = Popen (cmd3, stdin=pipe2.stdout, stdout=PIPE, stderr=logfile)
-        io.write_mat(pipe2.stdin, feats, key='abc')
+        io.write_mat(pipe2.stdin, feats, key=b'abc')
         pipe2.stdin.close()
         pipe3.communicate()
         with open(logfile.name) as fp:
@@ -246,7 +246,7 @@ def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025, poste
       
       with tempfile.NamedTemporaryFile(suffix='.log') as logfile: 
         pipe4 = Popen (cmd4, stdin=PIPE, stdout=PIPE, stderr=logfile)
-        io.write_mat(pipe4.stdin, feats, key='abc')
+        io.write_mat(pipe4.stdin, feats, key=b'abc')
         pipe4.stdin.close()
         with open(logfile.name) as fp:
           logtxt = fp.read()
@@ -277,7 +277,7 @@ def plda_train(feats, enroller_file):
           for utt in spk:
             # print i, j
             spkutt=spkid+'utt'+str(j)
-            io.write_vec_flt(f, utt, key=spkutt)
+            io.write_vec_flt(f, utt, key=spkutt.encode('utf-8'))
             spkfile.write(' '+spkutt)
             j += 1
           spkfile.write("\n")
@@ -353,7 +353,7 @@ def plda_enroll(feats, enroller_file):
         for utt in feats:
           # print i, j
           spkutt=spkid+'utt'+str(j)
-          io.write_vec_flt(f, utt, key=spkutt)
+          io.write_vec_flt(f, utt, key=spkutt.encode('utf-8'))
           spkfile.write(' '+spkutt)
           j += 1
         spkfile.write("\n")
@@ -393,16 +393,17 @@ def plda_enroll(feats, enroller_file):
       'ark:'+spkarkfile.name,
     ]
     # import ipdb; ipdb.set_trace()
-    with tempfile.NamedTemporaryFile(suffix='.log') as logfile: 
+    with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
       pipe1 = Popen (cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
       pipe2 = Popen (cmd2, stdin=pipe1.stdout, stdout=PIPE, stderr=logfile)
       pipe3 = Popen (cmd3, stdin=pipe2.stdout, stdout=PIPE, stderr=logfile)
       pipe4 = Popen (cmd4, stdin=pipe3.stdout, stdout=PIPE, stderr=logfile)
       pipe5 = Popen (cmd5, stdin=pipe4.stdout, stdout=PIPE, stderr=logfile)
       pipe5.communicate()
-      with open(logfile.name, 'rt') as fp:
-        logtxt = fp.read()
-        logger.debug("%s", logtxt)
+      logger.debug("PLDA enrollment DONE ->")
+      # with open(logfile.name) as fp:
+      #   logtxt = fp.read()
+      #   logger.debug("%s", logtxt)
 
   os.unlink(spkfile.name)
   os.unlink(arkfile.name)

@@ -168,14 +168,14 @@ def read_vec_flt(file_or_fd):
   """
   fd = open_or_fd(file_or_fd)
   binary = fd.read(2)
-  if binary == '\0B': # binary flag
+  if binary == b'\0B': # binary flag
     # Data type,
     type = fd.read(3)
-    if type == 'FV ': sample_size = 4 # floats
-    if type == 'DV ': sample_size = 8 # doubles
+    if type == b'FV ': sample_size = 4 # floats
+    if type == b'DV ': sample_size = 8 # doubles
     assert(sample_size > 0)
     # Dimension,
-    assert(fd.read(1) == '\4'); # int-size
+    assert(fd.read(1) == b'\4'); # int-size
     vec_size = struct.unpack('<i', fd.read(4))[0] # vector dim
     # Read whole vector,
     buf = fd.read(vec_size * sample_size)
@@ -194,7 +194,7 @@ def read_vec_flt(file_or_fd):
   return ans
 
 # Writing,
-def write_vec_flt(file_or_fd, v, key=''):
+def write_vec_flt(file_or_fd, v, key=b''):
   """ write_vec_flt(f, v, key='')
    Write a binary kaldi vector to filename or stream. Supports 32bit and 64bit floats.
    Arguments:
@@ -212,8 +212,7 @@ def write_vec_flt(file_or_fd, v, key=''):
   """
   fd = open_or_fd(file_or_fd, mode='wb')
   try:
-    keyd=key+' '
-    if key != '' : fd.write(keyd.encode('utf-8')) # ark-files have keys (utterance-id),
+    if key != b'' : fd.write(key+b' ') # ark-files have keys (utterance-id),
     fd.write(b'\0B') # we write binary!
     # Data-type,
     if v.dtype == 'float32': fd.write(b'FV ')
@@ -221,9 +220,11 @@ def write_vec_flt(file_or_fd, v, key=''):
     else: raise VectorDataTypeError
     # Dim,
     fd.write(b'\04')
-    fd.write(struct.pack('I',v.shape[0])) # dim
+    fd.write(b'%s' % struct.pack('I',v.shape[0])) # dim
     # Data,
-    v.tofile(fd, sep="") # binary
+    # v.tofile(fd, sep="") # binary
+    # v.tofile(fd) # binary by default
+    fd.write(v.tobytes())
   finally:
     if fd is not file_or_fd : fd.close()
 
@@ -295,8 +296,8 @@ def read_mat(file_or_fd):
 def _read_mat_binary(fd):
   # Data type
   type = fd.read(3)
-  if type == 'FM ': sample_size = 4 # floats
-  if type == 'DM ': sample_size = 8 # doubles
+  if type == b'FM ': sample_size = 4 # floats
+  if type == b'DM ': sample_size = 8 # doubles
   assert(sample_size > 0)
   # Dimensions
   fd.read(1)
@@ -318,7 +319,7 @@ def _read_mat_ascii(fd):
     if (len(line) == 0) : raise BadInputFormat # eof, should not happen!
     if len(line.strip()) == 0 : continue # skip empty line
     arr = line.strip().split()
-    if arr[-1] != ']':
+    if arr[-1] != b']':
       rows.append(np.array(arr,dtype='float32')) # not last line
     else:
       rows.append(np.array(arr[:-1],dtype='float32')) # last line
@@ -326,7 +327,7 @@ def _read_mat_ascii(fd):
       return mat
 
 # Writing,
-def write_mat(file_or_fd, m, key=''):
+def write_mat(file_or_fd, m, key=b''):
   """ write_mat(f, m, key='')
   Write a binary kaldi matrix to filename or stream. Supports 32bit and 64bit floats.
   Arguments:
@@ -344,20 +345,21 @@ def write_mat(file_or_fd, m, key=''):
   """
   fd = open_or_fd(file_or_fd, mode='wb')
   try:
-    keyd=key+' '
-    if key != '' : fd.write(keyd.encode('utf-8')) # ark-files have keys (utterance-id),
+    if key != b'' : fd.write(key+b' ') # ark-files have keys (utterance-id),
     fd.write(b'\0B') # we write binary!
     # Data-type,
-    if m.dtype == 'float32': fd.write('FM ')
-    elif m.dtype == 'float64': fd.write('DM ')
+    if m.dtype == 'float32': fd.write(b'FM ')
+    elif m.dtype == 'float64': fd.write(b'DM ')
     else: raise MatrixDataTypeError
     # Dims,
     fd.write(b'\04')
     fd.write(struct.pack('I',m.shape[0])) # rows
     fd.write(b'\04')
-    fd.write(struct.pack('I',m.shape[1])) # cols
+    fd.write(b'%s' % struct.pack('I',m.shape[1])) # cols
     # Data,
-    m.tofile(fd, sep="") # binary
+    # m.tofile(fd, sep=b"") # binary
+    fd.write(m.tobytes())
+
   finally:
     if fd is not file_or_fd : fd.close()
 
@@ -410,22 +412,22 @@ def read_post(file_or_fd):
   """
   fd = open_or_fd(file_or_fd)
   ans=[]
-  binary = fd.read(2); assert(binary == '\0B'); # binary flag
-  assert(fd.read(1) == '\4'); # int-size
+  binary = fd.read(2); assert(binary == b'\0B'); # binary flag
+  assert(fd.read(1) == b'\4'); # int-size
   outer_vec_size = struct.unpack('<i', fd.read(4))[0] # number of frames (or bins)
 
   # Loop over 'outer-vector',
   for i in range(outer_vec_size):
-    assert(fd.read(1) == '\4'); # int-size
+    assert(fd.read(1) == b'\4'); # int-size
     inner_vec_size = struct.unpack('<i', fd.read(4))[0] # number of records for frame (or bin)
     id = np.zeros(inner_vec_size, dtype=int) # buffer for integer id's
     post = np.zeros(inner_vec_size, dtype=float) # buffer for posteriors
 
     # Loop over 'inner-vector',
     for j in range(inner_vec_size):
-      assert(fd.read(1) == '\4'); # int-size
+      assert(fd.read(1) == b'\4'); # int-size
       id[j] = struct.unpack('<i', fd.read(4))[0] # id
-      assert(fd.read(1) == '\4'); # float-size
+      assert(fd.read(1) == b'\4'); # float-size
       post[j] = struct.unpack('<f', fd.read(4))[0] # post
 
     # Append the 'inner-vector' of tuples into the 'outer-vector'
@@ -475,8 +477,8 @@ def read_cntime(file_or_fd):
    Returns vector of tuples.
   """
   fd = open_or_fd(file_or_fd)
-  binary = fd.read(2); assert(binary == '\0B'); # assuming it's binary
-  assert(fd.read(1) == '\4'); # int-size
+  binary = fd.read(2); assert(binary == b'\0B'); # assuming it's binary
+  assert(fd.read(1) == b'\4'); # int-size
   # Get number of bins,
   vec_size = struct.unpack('<i', fd.read(4))[0] # number of frames (or bins)
   t_beg = np.zeros(vec_size, dtype=float)
@@ -484,9 +486,9 @@ def read_cntime(file_or_fd):
 
   # Loop over number of bins,
   for i in range(vec_size):
-    assert(fd.read(1) == '\4'); # float-size
+    assert(fd.read(1) == b'\4'); # float-size
     t_beg[i] = struct.unpack('<f', fd.read(4))[0] # begin-time of bin
-    assert(fd.read(1) == '\4'); # float-size
+    assert(fd.read(1) == b'\4'); # float-size
     t_end[i] = struct.unpack('<f', fd.read(4))[0] # end-time of bin
 
   # Return vector of tuples,
