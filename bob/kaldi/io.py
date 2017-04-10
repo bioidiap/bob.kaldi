@@ -220,7 +220,7 @@ def write_vec_flt(file_or_fd, v, key=b''):
     else: raise VectorDataTypeError
     # Dim,
     fd.write(b'\04')
-    fd.write(b'%s' % struct.pack('I',v.shape[0])) # dim
+    fd.write(struct.pack('I',v.shape[0])) # dim
     # Data,
     # v.tofile(fd, sep="") # binary
     # v.tofile(fd) # binary by default
@@ -355,7 +355,7 @@ def write_mat(file_or_fd, m, key=b''):
     fd.write(b'\04')
     fd.write(struct.pack('I',m.shape[0])) # rows
     fd.write(b'\04')
-    fd.write(b'%s' % struct.pack('I',m.shape[1])) # cols
+    fd.write(struct.pack('I',m.shape[1])) # cols
     # Data,
     # m.tofile(fd, sep=b"") # binary
     fd.write(m.tobytes())
