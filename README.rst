@@ -7,7 +7,8 @@
 ===========================
 
 This package provides pythonic bindings for Kaldi_ functionality so it can be
-seemlessly integrated with Python-based workflows.
+seemlessly integrated with Python-based workflows. It is a part fo the signal-processing and machine learning toolbox
+Bob_.
 
 
 Installation
@@ -15,8 +16,13 @@ Installation
 
 To install this package -- alone or together with other `Packages of Bob
 <https://github.com/idiap/bob/wiki/Packages>`_ -- please read the `Installation
-Instructions <https://github.com/idiap/bob/wiki/Installation>`_.  For Bob_ to
-be able to work properly, some dependent packages are required to be installed.
+Instructions <https://github.com/idiap/bob/wiki/Installation>`_.  
+For Bob_, follow our `installation`_ instructions. Then, using the Python interpreter
+provided by the distribution, build this package with::
+
+  $ buildout
+
+To be able to work properly, some dependent packages are required to be installed.
 Please make sure that you have read the `Dependencies
 <https://github.com/idiap/bob/wiki/Dependencies>`_ for your operating system.
 
@@ -35,5 +41,14 @@ of the documentation.  For a list of tutorials on this or the other packages ob
 Bob_, or information on submitting issues, asking questions and starting
 discussions, please visit its website.
 
+
+Contact
+-------
+
+For questions or reporting issues to this software package, contact our
+development `mailing list`_.
+
 .. _bob: https://www.idiap.ch/software/bob
 .. _kaldi: http://kaldi-asr.org/
+.. _mailing list: https://www.idiap.ch/software/bob/discuss
+.. _installation: https://www.idiap.ch/software/bob/install
