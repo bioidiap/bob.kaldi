@@ -14,10 +14,7 @@ Bob_.
 Installation
 ------------
 
-To install this package -- alone or together with other `Packages of Bob
-<https://github.com/idiap/bob/wiki/Packages>`_ -- please read the `Installation
-Instructions <https://github.com/idiap/bob/wiki/Installation>`_.  
-For Bob_, follow our `installation`_ instructions. Then, using the Python interpreter
+Follow our `installation`_ instructions. Then, using the Python interpreter
 provided by the distribution, build this package with::
 
   $ buildout
