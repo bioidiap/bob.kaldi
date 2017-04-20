@@ -31,6 +31,9 @@ Installation
 Follow our `installation`_ instructions. Then, using the Python interpreter
 provided by the distribution, build this package with::
 
+  $ git clone BOB.KALDI_REPOSITORY
+  $ cd bob.kaldi
+  $ source activate BOB_ENV
   $ buildout
 
 To be able to work properly, some dependent packages are required to be installed.
