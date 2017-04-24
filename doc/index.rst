@@ -52,13 +52,14 @@ filename as `str`. Both functions return the features as
       """
       
       def mfcc(sample):
-          import pkg_resources
 	  import bob.io.audio
+	  import bob.kaldi
 	  
 	  data = bob.io.audio.reader(sample)
-	  
 	  mfcc = bob.kaldi.mfcc(data.load()[0], data.rate,
 	  normalization=False)
+
+	  return mfcc
 
       if __name__ == "__main__":
           import doctest
@@ -76,10 +77,11 @@ filename as `str`. Both functions return the features as
       """
 
       def mfcc_from_path(sample):
-          import pkg_resources
-	  import bob.io.audio
+	  import bob.kaldi
 
 	  mfcc = bob.kaldi.mfcc_from_path(sample)
+
+	  return mfcc
 
       if __name__ == "__main__":
           import doctest
