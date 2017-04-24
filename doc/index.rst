@@ -43,34 +43,42 @@ filename as `str`. Both functions return the features as
 `numpy.ndarray`:
 
 1. `bob.kaldi.mfcc`
-
    .. doctest::
 
-		   import pkg_resources
-		   import bob.io.audio
+      def mfcc():
+          import pkg_resources
+	  import bob.io.audio
+	  
+	  sample = pkg_resources.resource_filename(__name__,
+	  'data/sample16k.wav')
 
-		   sample = pkg_resources.resource_filename(__name__,
-		   'data/sample16k.wav')
+	  data = bob.io.audio.reader(sample)
+	  
+	  mfcc = bob.kaldi.mfcc(data.load()[0], data.rate,
+	  normalization=False)
 
-		   data = bob.io.audio.reader(sample)
-
-		   mfcc = bob.kaldi.mfcc(data.load()[0], data.rate,
-		   normalization=False)
-		   
+      if __name__ == "__main__":
+          import doctest
+	  doctest.testmod()
    
    
 2. `bob.kaldi.mfcc_from_path`
 
    .. doctest::
 
-		   import pkg_resources
-		   import bob.io.audio
+      def mfcc_from_path():
+          import pkg_resources
+	  import bob.io.audio
 
-		   sample = pkg_resources.resource_filename(__name__,
-		   'data/sample16k.wav')
+	  sample = pkg_resources.resource_filename(__name__,
+	  'data/sample16k.wav')
+	  
+	  mfcc = bob.kaldi.mfcc_from_path(sample)
 
-		   mfcc = bob.kaldi.mfcc_from_path(sample)
-
+      if __name__ == "__main__":
+          import doctest
+	  doctest.testmod()
+	  
 ====================
  Speaker recognition
 ====================
@@ -80,41 +88,19 @@ UBM training and evaluation
 ---------------------------
 
 Both diagonal and full covariance Universal Background Models (UBMs)
-are supported:
+are supported. Speakers can be enrolled and evaluated.
 
-.. doctest::
-
-  # Train small diagonall GMM 
-  dubm = bob.kaldi.ubm_train(mfcc, projector_file, num_gauss = 2,
-                             num_gselect = 2, num_iters = 2)
-
-  # Train small full GMM
-  ubm = bob.kaldi.ubm_full_train(mfcc, projector_file,
-                                 num_gselect = 2, num_iters = 2)
-
-				 
-Speakers can be enrolled and evaluated:
-
-.. doctest::
-
-  # Perform MAP adaptation of the UBM-GMM
-  spk_model = bob.kaldi.ubm_enroll(mfcc, dubm)
-
-  # GMM scoring
-  score = bob.kaldi.gmm_score(mfcc, spk_model, dubm)
-  
-
-Following guide describes how to run whole speaker recognition experiments.
+Following guide describes how to run whole speaker recognition experiments:
 
 1. To run the UBM-GMM with MAP adaptation speaker recognition experiment, run:
 
-.. doctest::
+.. code-block:: sh
 		
 	./bin/verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'gmm-kaldi' -s exp-gmm-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
 
 2. To run the ivector+plda speaker recognition experiment, run:
 
-.. doctest::
+.. code-block:: sh
 		
 	./bin/verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'ivector-plda-kaldi' -s exp-ivector-plda-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
 
