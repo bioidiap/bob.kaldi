@@ -48,18 +48,18 @@ filename as `str`. Both functions return the features as
       """
       This is the example mfcc module.
 
-      >>> array = mfcc('data/sample16k.wav')
+      >>> array = mfcc_from_samples('data/sample16k.wav')
       """
       
-      def mfcc(sample):
+      def mfcc_from_samples(file):
 	  import bob.io.audio
 	  import bob.kaldi
 	  
-	  data = bob.io.audio.reader(sample)
-	  mfcc = bob.kaldi.mfcc(data.load()[0], data.rate,
+	  data = bob.io.audio.reader(file)
+	  feat = bob.kaldi.mfcc(data.load()[0], data.rate,
 	  normalization=False)
 
-	  return mfcc
+	  return feat
 
       if __name__ == "__main__":
           import doctest
@@ -73,15 +73,15 @@ filename as `str`. Both functions return the features as
       """
       This is the example mfcc module.
 
-      >>> array = mfcc_from_path('data/sample16k.wav')
+      >>> array = mfcc_from_file('data/sample16k.wav')
       """
 
-      def mfcc_from_path(sample):
+      def mfcc_from_file(file):
 	  import bob.kaldi
 
-	  mfcc = bob.kaldi.mfcc_from_path(sample)
+	  feat = bob.kaldi.mfcc_from_path(file)
 
-	  return mfcc
+	  return feat
 
       if __name__ == "__main__":
           import doctest
