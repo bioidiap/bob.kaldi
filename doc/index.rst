@@ -45,13 +45,16 @@ filename as `str`. Both functions return the features as
 1. `bob.kaldi.mfcc`
    .. doctest::
 
-      def mfcc():
+      """
+      This is the example mfcc module.
+
+      >>> array = mfcc('data/sample16k.wav')
+      """
+      
+      def mfcc(sample):
           import pkg_resources
 	  import bob.io.audio
 	  
-	  sample = pkg_resources.resource_filename(__name__,
-	  'data/sample16k.wav')
-
 	  data = bob.io.audio.reader(sample)
 	  
 	  mfcc = bob.kaldi.mfcc(data.load()[0], data.rate,
@@ -65,14 +68,17 @@ filename as `str`. Both functions return the features as
 2. `bob.kaldi.mfcc_from_path`
 
    .. doctest::
+      
+      """
+      This is the example mfcc module.
 
-      def mfcc_from_path():
+      >>> array = mfcc_from_path('data/sample16k.wav')
+      """
+
+      def mfcc_from_path(sample):
           import pkg_resources
 	  import bob.io.audio
 
-	  sample = pkg_resources.resource_filename(__name__,
-	  'data/sample16k.wav')
-	  
 	  mfcc = bob.kaldi.mfcc_from_path(sample)
 
       if __name__ == "__main__":
