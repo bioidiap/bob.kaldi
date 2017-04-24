@@ -44,7 +44,7 @@ filename as `str`. Both functions return the features as
 
 1. `bob.kaldi.mfcc`
 
-   .. code-block:: py
+   .. doctest::
 
 		   import pkg_resources
 		   import bob.io.audio
@@ -61,7 +61,7 @@ filename as `str`. Both functions return the features as
    
 2. `bob.kaldi.mfcc_from_path`
 
-   .. code-block:: py
+   .. doctest::
 
 		   import pkg_resources
 		   import bob.io.audio
@@ -82,7 +82,7 @@ UBM training and evaluation
 Both diagonal and full covariance Universal Background Models (UBMs)
 are supported:
 
-.. code-block:: py
+.. doctest::
 
   # Train small diagonall GMM 
   dubm = bob.kaldi.ubm_train(mfcc, projector_file, num_gauss = 2,
@@ -95,7 +95,7 @@ are supported:
 				 
 Speakers can be enrolled and evaluated:
 
-.. code-block:: py
+.. doctest::
 
   # Perform MAP adaptation of the UBM-GMM
   spk_model = bob.kaldi.ubm_enroll(mfcc, dubm)
@@ -108,13 +108,13 @@ Following guide describes how to run whole speaker recognition experiments.
 
 1. To run the UBM-GMM with MAP adaptation speaker recognition experiment, run:
 
-.. code-block:: sh
+.. doctest::
 		
 	./bin/verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'gmm-kaldi' -s exp-gmm-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
 
 2. To run the ivector+plda speaker recognition experiment, run:
 
-.. code-block:: sh
+.. doctest::
 		
 	./bin/verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'ivector-plda-kaldi' -s exp-ivector-plda-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
 
