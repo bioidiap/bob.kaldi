@@ -4,6 +4,13 @@
 ..
 .. Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
 
+.. py:currentmodule:: bob.kaldi
+
+.. testsetup:: *
+
+   from __future__ import print_function
+   import bob.kaldi
+   
 .. _bob.kaldi:
 
 
@@ -39,53 +46,13 @@ MFCC Extraction
 Two functions are implemented to extract MFCC features
 `bob.kaldi.mfcc` and `bob.kaldi.mfcc_from_path`. The former function
 accepts the speech samples as `numpy.ndarray`, whereas the latter the
-filename as `str`. Both functions return the features as
-`numpy.ndarray`:
+filename as `str`, returning the features as `numpy.ndarray`:
 
-1. `bob.kaldi.mfcc`
-   .. doctest::
+.. doctest::
 
-      """
-      This is the example mfcc module.
-
-      >>> array = mfcc_from_samples('data/sample16k.wav')
-      """
-      
-      def mfcc_from_samples(file):
-	  import bob.io.audio
-	  import bob.kaldi
-	  
-	  data = bob.io.audio.reader(file)
-	  feat = bob.kaldi.mfcc(data.load()[0], data.rate,
-	  normalization=False)
-
-	  return feat
-
-      if __name__ == "__main__":
-          import doctest
-	  doctest.testmod()
-   
-   
-2. `bob.kaldi.mfcc_from_path`
-
-   .. doctest::
-      
-      """
-      This is the example mfcc module.
-
-      >>> array = mfcc_from_file('data/sample16k.wav')
-      """
-
-      def mfcc_from_file(file):
-	  import bob.kaldi
-
-	  feat = bob.kaldi.mfcc_from_path(file)
-
-	  return feat
-
-      if __name__ == "__main__":
-          import doctest
-	  doctest.testmod()
+   >>> mfcc = bob.kaldi.mfcc_from_path('bob/kaldi/test/data/sample16k.wav')
+   >>> print mfcc.shape
+   (317, 39)
 	  
 ====================
  Speaker recognition
