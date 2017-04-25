@@ -12,7 +12,6 @@
    import pkg_resources
    import bob.kaldi
 
-   sample = pkg_resources.resource_filename(__name__, 'src/bob.kaldi/bob/kaldi/test/data/sample16k.wav')
    
 .. _bob.kaldi:
 
@@ -53,7 +52,7 @@ filename as `str`, returning the features as `numpy.ndarray`:
 
 .. doctest::
 
-   >>> sample = pkg_resources.resource_filename(__name__, 'sample16k.wav') # doctest: +SKIP
+   >>> sample = pkg_resources.resource_filename(__name__, 'sample16k.wav')
    >>> feat = bob.kaldi.mfcc_from_path(sample)
    >>> print (feat.shape)
    (317, 39)
