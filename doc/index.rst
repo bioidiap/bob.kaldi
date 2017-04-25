@@ -50,7 +50,7 @@ filename as `str`, returning the features as `numpy.ndarray`:
 
 .. doctest::
 
-   >>> mfcc = bob.kaldi.mfcc_from_path('bob/kaldi/test/data/sample16k.wav')
+   >>> mfcc = bob.kaldi.mfcc_from_path('sample16k.wav')
    >>> print mfcc.shape
    (317, 39)
 	  
