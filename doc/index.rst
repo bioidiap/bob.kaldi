@@ -11,6 +11,7 @@
    from __future__ import print_function
    import pkg_resources
    import bob.kaldi
+   import bob.io.audio
 
    
 .. _bob.kaldi:
@@ -50,13 +51,26 @@ Two functions are implemented to extract MFCC features
 accepts the speech samples as `numpy.ndarray`, whereas the latter the
 filename as `str`, returning the features as `numpy.ndarray`:
 
-.. doctest::
+1. `bob.kaldi.mfcc`
+   
+   .. doctest::
+      
+      >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
+      >>> data = bob.io.audio.reader(sample)
+      >>> feat = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=False)
+      >>> print (feat.shape)
+      (317, 39)
 
-   >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
-   >>> feat = bob.kaldi.mfcc_from_path(sample)
-   >>> print (feat.shape)
-   (317, 39)
-	  
+2. `bob.kaldi.mfcc_from_path`
+   
+   .. doctest::
+      
+      >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
+      >>> feat = bob.kaldi.mfcc_from_path(sample)
+      >>> print (feat.shape)
+      (317, 39)
+
+   
 ====================
  Speaker recognition
 ====================
@@ -66,7 +80,23 @@ UBM training and evaluation
 ---------------------------
 
 Both diagonal and full covariance Universal Background Models (UBMs)
-are supported. Speakers can be enrolled and evaluated.
+are supported, speakers can be enrolled and scored:
+
+.. doctest::
+
+  >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
+  >>> mfcc = bob.kaldi.mfcc_from_path(sample)
+  >>> # Train small diagonall GMM
+  >>> projector_file = 'Projector'
+  >>> dubm = bob.kaldi.ubm_train(mfcc, projector_file, num_gauss = 2, num_gselect = 2, num_iters = 2)
+  >>> # Train small full GMM
+  >>> ubm = bob.kaldi.ubm_full_train(mfcc, projector_file, num_gselect = 2, num_iters = 2)
+  >>> # Enrollement - MAP adaptation of the UBM-GMM
+  >>> spk_model = bob.kaldi.ubm_enroll(mfcc, dubm)
+  >>> # GMM scoring
+  >>> score = bob.kaldi.gmm_score(mfcc, spk_model, dubm)
+  >>> print ('%.3f' % score)
+  0.282
 
 Following guide describes how to run whole speaker recognition experiments:
 
