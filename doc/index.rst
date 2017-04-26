@@ -52,7 +52,7 @@ filename as `str`, returning the features as `numpy.ndarray`:
 
 .. doctest::
 
-   >>> sample = pkg_resources.resource_filename(__name__, 'bob/kaldi/test/data/sample16k.wav')
+   >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
    >>> feat = bob.kaldi.mfcc_from_path(sample)
    >>> print (feat.shape)
    (317, 39)
