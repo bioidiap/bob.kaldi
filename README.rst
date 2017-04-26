@@ -28,14 +28,11 @@ Bob_.
 Installation
 ------------
 
-Follow our `installation`_ instructions. Then, using the Python interpreter
-provided by the distribution, build this package with::
+To install the package, install firt bob, and then install the bob.kaldi package:
 
-  $ git clone BOB.KALDI_REPOSITORY
-  $ cd bob.kaldi
-  $ source activate BOB_ENV
-  $ buildout
-
+  $ conda install bob kaldi
+  $ pip install bob.kaldi
+  
 To be able to work properly, some dependent packages are required to be installed.
 Please make sure that you have read the `Dependencies
 <https://github.com/idiap/bob/wiki/Dependencies>`_ for your operating system.

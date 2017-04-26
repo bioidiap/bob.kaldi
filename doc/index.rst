@@ -12,7 +12,8 @@
    import pkg_resources
    import bob.kaldi
    import bob.io.audio
-
+   import tempfile
+   import os
    
 .. _bob.kaldi:
 
@@ -84,19 +85,20 @@ are supported, speakers can be enrolled and scored:
 
 .. doctest::
 
-  >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
-  >>> mfcc = bob.kaldi.mfcc_from_path(sample)
   >>> # Train small diagonall GMM
-  >>> projector_file = 'Projector'
-  >>> dubm = bob.kaldi.ubm_train(mfcc, projector_file, num_gauss = 2, num_gselect = 2, num_iters = 2)
+  >>> projector = tempfile.TemporaryFile()
+  >>> dubm = bob.kaldi.ubm_train(feat, projector.name, num_gauss=2, num_gselect=2, num_iters=2)
   >>> # Train small full GMM
-  >>> ubm = bob.kaldi.ubm_full_train(mfcc, projector_file, num_gselect = 2, num_iters = 2)
+  >>> ubm = bob.kaldi.ubm_full_train(feat, projector.name, num_gselect=2, num_iters=2)
   >>> # Enrollement - MAP adaptation of the UBM-GMM
-  >>> spk_model = bob.kaldi.ubm_enroll(mfcc, dubm)
+  >>> spk_model = bob.kaldi.ubm_enroll(feat, dubm)
   >>> # GMM scoring
-  >>> score = bob.kaldi.gmm_score(mfcc, spk_model, dubm)
+  >>> score = bob.kaldi.gmm_score(feat, spk_model, dubm)
   >>> print ('%.3f' % score)
   0.282
+  >>> os.unlink(projector.name)
+  >>> os.unlink(projector.name + '.dubm')
+  >>> os.unlink(projector.name + '.fubm')
 
 Following guide describes how to run whole speaker recognition experiments:
 
@@ -104,13 +106,13 @@ Following guide describes how to run whole speaker recognition experiments:
 
 .. code-block:: sh
 		
-	./bin/verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'gmm-kaldi' -s exp-gmm-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
+	verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'gmm-kaldi' -s exp-gmm-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
 
 2. To run the ivector+plda speaker recognition experiment, run:
 
 .. code-block:: sh
 		
-	./bin/verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'ivector-plda-kaldi' -s exp-ivector-plda-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
+	verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'ivector-plda-kaldi' -s exp-ivector-plda-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
 
 3. Results:
 

@@ -11,7 +11,7 @@ from . import io
 
 from subprocess import PIPE, Popen
 # import subprocess
-from os.path import exists
+from os.path import isfile
 import tempfile
 
 import logging
@@ -148,7 +148,7 @@ def mfcc_from_path(filename, channel=0, preemphasis_coefficient=0.97, raw_energy
   ]
 
   # import ipdb; ipdb.set_trace()
-  assert exists(filename)
+  assert isfile(filename)
   
   with open(os.devnull, "w") as fnull:
     pipe1 = Popen (cmd1, stdin=PIPE, stdout=PIPE, stderr=fnull)
