@@ -14,7 +14,7 @@
    import bob.io.audio
    import tempfile
    import os
-   
+
 .. _bob.kaldi:
 
 
@@ -48,14 +48,14 @@ MFCC Extraction
 ---------------
 
 Two functions are implemented to extract MFCC features
-`bob.kaldi.mfcc` and `bob.kaldi.mfcc_from_path`. The former function
-accepts the speech samples as `numpy.ndarray`, whereas the latter the
-filename as `str`, returning the features as `numpy.ndarray`:
+:py:any:`bob.kaldi.mfcc` and :py:any:`bob.kaldi.mfcc_from_path`. The former function
+accepts the speech samples as :py:any:`numpy.ndarray`, whereas the latter the
+filename as :py:any:`str`, returning the features as :py:any:`numpy.ndarray`:
 
 1. `bob.kaldi.mfcc`
-   
+
    .. doctest::
-      
+
       >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
       >>> data = bob.io.audio.reader(sample)
       >>> feat = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=False)
@@ -63,20 +63,20 @@ filename as `str`, returning the features as `numpy.ndarray`:
       (317, 39)
 
 2. `bob.kaldi.mfcc_from_path`
-   
+
    .. doctest::
-      
+
       >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
       >>> feat = bob.kaldi.mfcc_from_path(sample)
       >>> print (feat.shape)
       (317, 39)
 
-   
+
 ====================
  Speaker recognition
 ====================
-	   
-		   
+
+
 UBM training and evaluation
 ---------------------------
 
@@ -105,13 +105,13 @@ Following guide describes how to run whole speaker recognition experiments:
 1. To run the UBM-GMM with MAP adaptation speaker recognition experiment, run:
 
 .. code-block:: sh
-		
+
 	verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'gmm-kaldi' -s exp-gmm-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
 
 2. To run the ivector+plda speaker recognition experiment, run:
 
 .. code-block:: sh
-		
+
 	verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'ivector-plda-kaldi' -s exp-ivector-plda-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
 
 3. Results:
