@@ -86,7 +86,7 @@ are supported, speakers can be enrolled and scored:
 .. doctest::
 
   >>> # Train small diagonall GMM
-  >>> projector = tempfile.TemporaryFile()
+  >>> projector = tempfile.NamedTemporaryFile()
   >>> dubm = bob.kaldi.ubm_train(feat, projector.name, num_gauss=2, num_gselect=2, num_iters=2)
   >>> # Train small full GMM
   >>> ubm = bob.kaldi.ubm_full_train(feat, projector.name, num_gselect=2, num_iters=2)
@@ -120,8 +120,11 @@ Following guide describes how to run whole speaker recognition experiments:
 | Experiment description                            |    EER |   HTER |
 +---------------------------------------------------+--------+--------+
 | -e 'mfcc-kaldi', -a 'gmm-kadi', 100GMM            | 18.53% | 14.52% |
++---------------------------------------------------+--------+--------+
 | -e 'mfcc-kaldi', -a 'gmm-kadi', 512GMM            | 17.51% | 12.44% |
++---------------------------------------------------+--------+--------+
 | -e 'mfcc-kaldi', -a 'ivector-plda-kaldi', 64GMM   | 12.26% | 11.97% |
++---------------------------------------------------+--------+--------+
 | -e 'mfcc-kaldi', -a 'ivector-plda-kaldi', 256GMM  | 11.35% | 11.46% |
 +---------------------------------------------------+--------+--------+
 
