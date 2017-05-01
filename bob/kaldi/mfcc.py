@@ -31,29 +31,33 @@ def mfcc(data, rate=8000, preemphasis_coefficient=0.97, raw_energy=True,
         The sampling rate of the input signal in ``data``.
 
     preemphasis_coefficient : float, optional
-        Description
+        Coefficient for use in signal preemphasis
     raw_energy : bool, optional
-        Description
+        If true, compute energy before preemphasis and windowing
     frame_length : int, optional
-        Description
+        Frame length in milliseconds
     frame_shift : int, optional
-        Description
+        Frame shift in milliseconds
     num_ceps : int, optional
-        Description
+        Number of cepstra in MFCC computation (including C0)
     num_mel_bins : int, optional
-        Description
+        Number of triangular mel-frequency bins
     cepstral_lifter : int, optional
-        Description
+        Constant that controls scaling of MFCCs
     low_freq : int, optional
-        Description
+        Low cutoff frequency for mel bins
     high_freq : int, optional
-        Description
+        High cutoff frequency for mel bins (if < 0, offset from Nyquist)
     dither : float, optional
-        Description
+        Dithering constant (0.0 means no dither)
     snip_edges : bool, optional
-        Description
+        If true, end effects will be handled by outputting only frames
+        that completely fit in the file, and the number of frames
+        depends on the frame-length.  If false, the number of frames
+        depends only on the frame-shift, and we reflect the data at
+        the ends. 
     normalization : bool, optional
-        Description
+        If true, the input samples in ``data`` are normalized to [-1, 1].
 
     Returns
     -------
@@ -112,9 +116,6 @@ def mfcc(data, rate=8000, preemphasis_coefficient=0.97, raw_energy=True,
         io.write_wav(pipe1.stdin, data, rate)
         pipe1.stdin.close()
 
-        # # wait for piped execution to finish
-        # pipe3.communicate()
-
         # read ark from pipe3.stdout
         ret = [mat for name, mat in io.read_mat_ark(pipe3.stdout)][0]
         return ret
@@ -135,27 +136,31 @@ def mfcc_from_path(filename, channel=0, preemphasis_coefficient=0.97,
         The audio channel to read from inside the file
 
     preemphasis_coefficient : float, optional
-        Description
+        Coefficient for use in signal preemphasis
     raw_energy : bool, optional
-        Description
+        If true, compute energy before preemphasis and windowing
     frame_length : int, optional
-        Description
+        Frame length in milliseconds
     frame_shift : int, optional
-        Description
+        Frame shift in milliseconds
     num_ceps : int, optional
-        Description
+        Number of cepstra in MFCC computation (including C0)
     num_mel_bins : int, optional
-        Description
+        Number of triangular mel-frequency bins
     cepstral_lifter : int, optional
-        Description
+        Constant that controls scaling of MFCCs
     low_freq : int, optional
-        Description
+        Low cutoff frequency for mel bins
     high_freq : int, optional
-        Description
+        High cutoff frequency for mel bins (if < 0, offset from Nyquist)
     dither : float, optional
-        Description
+        Dithering constant (0.0 means no dither)
     snip_edges : bool, optional
-        Description
+        If true, end effects will be handled by outputting only frames
+        that completely fit in the file, and the number of frames
+        depends on the frame-length.  If false, the number of frames
+        depends only on the frame-shift, and we reflect the data at
+        the ends
 
     Returns
     -------

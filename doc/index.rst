@@ -48,11 +48,9 @@ MFCC Extraction
 ---------------
 
 Two functions are implemented to extract MFCC features
-:py:any:`bob.kaldi.mfcc` and :py:any:`bob.kaldi.mfcc_from_path`. The former function
-accepts the speech samples as :py:any:`numpy.ndarray`, whereas the latter the
-filename as :py:any:`str`, returning the features as :py:any:`numpy.ndarray`:
+:py:func:`bob.kaldi.mfcc` and :py:func:`bob.kaldi.mfcc_from_path`. The former function accepts the speech samples as :py:data:`numpy.ndarray`, whereas the latter the filename as :py:data:`str`, returning the features as :py:data:`numpy.ndarray`:
 
-1. `bob.kaldi.mfcc`
+1. :py:func:`bob.kaldi.mfcc`
 
    .. doctest::
 
@@ -62,7 +60,7 @@ filename as :py:any:`str`, returning the features as :py:any:`numpy.ndarray`:
       >>> print (feat.shape)
       (317, 39)
 
-2. `bob.kaldi.mfcc_from_path`
+2. :py:func:`bob.kaldi.mfcc_from_path`
 
    .. doctest::
 

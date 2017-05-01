@@ -22,10 +22,15 @@ def open_or_fd(file, mode='rb'):
 
     Parameters
     ----------
-    file : TYPE
-        Description
+    file : object
+        An ark, gzipped ark, pipe or opened file descriptor.
     mode : str, optional
-        Description
+        A mode of the file.
+
+    Returns
+    -------
+    object
+        A file descriptor.
     """
     offset = None
     try:
@@ -63,8 +68,13 @@ def read_key(fd):
 
     Parameters
     ----------
-    fd : TYPE
-        Description
+    fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
+
+    Returns
+    -------
+    str
+        An utterance-key.
     """
     str = b''
     while 1:
@@ -93,15 +103,14 @@ def read_vec_int_ark(file_or_fd):
     """generator(key,vec) = read_vec_int_ark(file_or_fd)
     Create generator of (key,vector<int>) tuples, which reads from the ark
     file/stream.
-    file_or_fd : ark, gzipped ark, pipe or opened file descriptor.
 
     Read ark to a 'dictionary':
     d = { u:d for u,d in kaldi_io.read_vec_int_ark(file) }
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
     try:
@@ -121,8 +130,13 @@ def read_vec_int(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
+
+    Returns
+    -------
+    list of int
+        Returns integer vector.
     """
     fd = open_or_fd(file_or_fd)
     binary = fd.read(2)
@@ -155,11 +169,11 @@ def write_vec_int(file_or_fd, v, key=''):
 
     Parameters
     ----------
-    file_or_fd
+    file_or_fd: object
         filename or opened file descriptor for writing,
-    v
+    v: list of int
         the vector to be stored,
-    key : optional
+    key : str, optional
         used for writing ark-file, the utterance-id gets written
         before the vector.
 
@@ -199,15 +213,14 @@ def read_vec_flt_ark(file_or_fd):
     """generator(key,vec) = read_vec_flt_ark(file_or_fd)
     Create generator of (key,vector<float>) tuples, reading from an ark
     file/stream.
-    file_or_fd : ark, gzipped ark, pipe or opened file descriptor.
 
     Read ark to a 'dictionary':
     d = { u:d for u,d in kaldi_io.read_vec_flt_ark(file) }
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
     try:
@@ -227,13 +240,13 @@ def read_vec_flt(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
 
     Raises
     ------
     ValueError
-        Description
+        Unsupported data-type of the input file.
     """
     fd = open_or_fd(file_or_fd)
     binary = fd.read(2)
@@ -279,11 +292,11 @@ def write_vec_flt(file_or_fd, v, key=b''):
 
     Parameters
     ----------
-    file_or_fd
-        filename or opened file descriptor for writing,
-    v
+    file_or_fd: object
+        An ark, gzipped ark, pipe or opened file descriptor.
+    v: str
         the vector to be stored,
-    key : optional
+    key : str, optional
         used for writing ark-file, the utterance-id gets written
         before the vector.
 
@@ -300,7 +313,7 @@ def write_vec_flt(file_or_fd, v, key=b''):
     Raises
     ------
     ValueError
-        Description
+        Unsupported data-type of the input file.
     """
     fd = open_or_fd(file_or_fd, mode='wb')
     try:
@@ -345,8 +358,8 @@ def read_mat_scp(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
     try:
@@ -374,8 +387,8 @@ def read_mat_ark(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
     try:
@@ -392,12 +405,11 @@ def read_mat_ark(file_or_fd):
 def read_mat(file_or_fd):
     """[mat] = read_mat(file_or_fd)
     Reads single kaldi matrix, supports ascii and binary.
-    file_or_fd : file, gzipped file, pipe or opened file descriptor.
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
     try:
@@ -464,11 +476,11 @@ def write_mat(file_or_fd, m, key=b''):
 
     Parameters
     ----------
-    file_or_fd
+    file_or_fd: object
         filename of opened file descriptor for writing,
-    m
+    m: numpy.ndarray
         the matrix to be stored,
-    key : optional
+    key : str, optional
         used for writing ark-file, the utterance-id gets written before the
         matrix.
 
@@ -483,7 +495,7 @@ def write_mat(file_or_fd, m, key=b''):
     Raises
     ------
     MatrixDataTypeError
-        Description
+        Unsupported data-type of the input file.
     """
     fd = open_or_fd(file_or_fd, mode='wb')
     try:
@@ -524,8 +536,8 @@ def read_cnet_ark(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
     """
     return read_post_ark(file_or_fd)
 
@@ -545,8 +557,8 @@ def read_post_ark(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
     try:
@@ -574,8 +586,8 @@ def read_post(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
     ans = []
@@ -628,8 +640,8 @@ def read_cntime_ark(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
     try:
@@ -657,8 +669,8 @@ def read_cntime(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : TYPE
-        Description
+    file_or_fd : object
+        An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
     binary = fd.read(2)
@@ -684,7 +696,19 @@ def read_cntime(file_or_fd):
 
 
 def write_wav(fp, data, rate, bitdepth=16):
+    """ Write a wav file.
 
+    Parameters
+    ----------
+    fp : object
+        A file pointer.
+    data: numpy.ndarray
+        Data samples
+    rate: int
+        Sample rate.
+    bitdepth: int, optional
+        A bit depth of samples.
+    """
     num_chan = 1
     num_samp = data.size
 
