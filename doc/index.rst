@@ -7,14 +7,14 @@
 .. _bob.kaldi:
 
 
-======================
- Bob/Kaldi Extensions
-======================
+=======================
+ Bob wrapper for Kaldi
+=======================
 
 .. todolist::
 
-This module contains information on how to build and maintain |project|
-Kaldi_ extensions written in pure Python or a mix of C/C++ and Python.
+This package provides a pythonic API for Kaldi_ functionality so it can be
+seamlessly integrated with Python-based workflows.
 
 Documentation
 -------------
@@ -22,6 +22,7 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
+   guide
    py_api
 
 
@@ -31,5 +32,6 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
 
 .. include:: links.rst
