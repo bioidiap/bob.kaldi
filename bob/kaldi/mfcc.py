@@ -30,33 +30,33 @@ def mfcc(data, rate=8000, preemphasis_coefficient=0.97, raw_energy=True,
     rate : float
         The sampling rate of the input signal in ``data``.
 
-    preemphasis_coefficient : float, optional
+    preemphasis_coefficient : :obj:`float`, optional
         Coefficient for use in signal preemphasis
-    raw_energy : bool, optional
+    raw_energy : :obj:`bool`, optional
         If true, compute energy before preemphasis and windowing
-    frame_length : int, optional
+    frame_length : :obj:`int`, optional
         Frame length in milliseconds
-    frame_shift : int, optional
+    frame_shift : :obj:`int`, optional
         Frame shift in milliseconds
-    num_ceps : int, optional
+    num_ceps : :obj:`int`, optional
         Number of cepstra in MFCC computation (including C0)
-    num_mel_bins : int, optional
+    num_mel_bins : :obj:`int`, optional
         Number of triangular mel-frequency bins
-    cepstral_lifter : int, optional
+    cepstral_lifter : :obj:`int`, optional
         Constant that controls scaling of MFCCs
-    low_freq : int, optional
+    low_freq : :obj:`int`, optional
         Low cutoff frequency for mel bins
-    high_freq : int, optional
+    high_freq : :obj:`int`, optional
         High cutoff frequency for mel bins (if < 0, offset from Nyquist)
-    dither : float, optional
+    dither : :obj:`float`, optional
         Dithering constant (0.0 means no dither)
-    snip_edges : bool, optional
+    snip_edges : :obj:`bool`, optional
         If true, end effects will be handled by outputting only frames
         that completely fit in the file, and the number of frames
         depends on the frame-length.  If false, the number of frames
         depends only on the frame-shift, and we reflect the data at
         the ends. 
-    normalization : bool, optional
+    normalization : :obj:`bool`, optional
         If true, the input samples in ``data`` are normalized to [-1, 1].
 
     Returns
@@ -135,27 +135,27 @@ def mfcc_from_path(filename, channel=0, preemphasis_coefficient=0.97,
     channel : int
         The audio channel to read from inside the file
 
-    preemphasis_coefficient : float, optional
+    preemphasis_coefficient : :obj:`float`, optional
         Coefficient for use in signal preemphasis
-    raw_energy : bool, optional
+    raw_energy : :obj:`bool`, optional
         If true, compute energy before preemphasis and windowing
-    frame_length : int, optional
+    frame_length : :obj:`int`, optional
         Frame length in milliseconds
-    frame_shift : int, optional
+    frame_shift : :obj:`int`, optional
         Frame shift in milliseconds
-    num_ceps : int, optional
+    num_ceps : :obj:`int`, optional
         Number of cepstra in MFCC computation (including C0)
-    num_mel_bins : int, optional
+    num_mel_bins : :obj:`int`, optional
         Number of triangular mel-frequency bins
-    cepstral_lifter : int, optional
+    cepstral_lifter : :obj:`int`, optional
         Constant that controls scaling of MFCCs
-    low_freq : int, optional
+    low_freq : :obj:`int`, optional
         Low cutoff frequency for mel bins
-    high_freq : int, optional
+    high_freq : :obj:`int`, optional
         High cutoff frequency for mel bins (if < 0, offset from Nyquist)
-    dither : float, optional
+    dither : :obj:`float`, optional
         Dithering constant (0.0 means no dither)
-    snip_edges : bool, optional
+    snip_edges : :obj:`bool`, optional
         If true, end effects will be handled by outputting only frames
         that completely fit in the file, and the number of frames
         depends on the frame-length.  If false, the number of frames

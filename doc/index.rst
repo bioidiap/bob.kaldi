@@ -47,8 +47,7 @@ Indices and tables
 MFCC Extraction
 ---------------
 
-Two functions are implemented to extract MFCC features
-:py:func:`bob.kaldi.mfcc` and :py:func:`bob.kaldi.mfcc_from_path`:
+Two functions are implemented to extract MFCC features :py:func:`bob.kaldi.mfcc` and :py:func:`bob.kaldi.mfcc_from_path`. The former function accepts the speech samples as :obj:`numpy.ndarray`, whereas the latter the filename as :obj:`str`:
 
 1. :py:func:`bob.kaldi.mfcc`
 

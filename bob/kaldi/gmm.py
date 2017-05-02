@@ -30,27 +30,27 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
     ubmname : str
             A path to the UBM model.
 
-    num_threads : int, optional
+    num_threads : :obj:`int`, optional
             Number of threads used for statistics accumulation.
-    num_frames : int, optional
+    num_frames : :obj:`int`, optional
             Number of feature vectors to store in memory and train on
             (randomly chosen from the input features).
-    min_gaussian_weight : float, optional
+    min_gaussian_weight : :obj:`float`, optional
             Kaldi MleDiagGmmOptions: Min Gaussian weight before we
             remove it.
-    num_gauss : int, optional
+    num_gauss : :obj:`int`, optional
             Number of Gaussians in the model.
-    num_gauss_init : int, optional
+    num_gauss_init : :obj:`int`, optional
             Number of Gaussians in the model initially (if nonzero and
             less than num_gauss, we'll do mixture splitting).
-    num_gselect : int, optional
+    num_gselect : :obj:`int`, optional
             Number of Gaussians to keep per frame.
-    num_iters_init : int, optional
+    num_iters_init : :obj:`int`, optional
             Number of iterations of training for initialization of the
             single diagonal GMM.
-    num_iters : int, optional
+    num_iters : :obj:`int`, optional
             Number of iterations of training.
-    remove_low_count_gaussians : bool, optional
+    remove_low_count_gaussians : :obj:`bool`, optional
             Kaldi MleDiagGmmOptions: If true, remove Gaussians that
             fall below the floors.
 
@@ -196,11 +196,11 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4,
     dubmname : str
             A path to the UBM model.
 
-    num_gselect : int, optional
+    num_gselect : :obj:`int`, optional
             Number of Gaussians to keep per frame.
-    num_iters : int, optional
+    num_iters : :obj:`int`, optional
             Number of iterations of training.
-    min_gaussian_weight : float, optional
+    min_gaussian_weight : :obj:`float`, optional
             Kaldi MleDiagGmmOptions: Min Gaussian weight before we
             remove it.
 

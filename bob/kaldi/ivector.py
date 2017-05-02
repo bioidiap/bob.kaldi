@@ -29,21 +29,21 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600,
     projector_file : str
         A path to global GMM file
 
-    num_gselect : int, optional
+    num_gselect : :obj:`int`, optional
         Number of Gaussians to keep per frame.
-    ivector_dim : int, optional
+    ivector_dim : :obj:`int`, optional
         Dimension of iVector.
-    use_weights : bool, optional
+    use_weights : :obj:`bool`, optional
         If true, regress the log-weights on the iVector
-    num_iters : int, optional
+    num_iters : :obj:`int`, optional
         Number of iterations of training.
-    min_post : float, optional
+    min_post : :obj:`float`, optional
         If nonzero, posteriors below this threshold will be pruned
         away and the rest will be renormalized to sum to one.
-    num_samples_for_weights : int, optional
+    num_samples_for_weights : :obj:`int`, optional
         Number of samples from iVector distribution to use for
         accumulating stats for weight update.  Must be >1.
-    posterior_scale : float, optional
+    posterior_scale : :obj:`float`, optional
         A posterior scaling with a global scale.
 
     Returns
@@ -209,22 +209,20 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600,
 
 def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025,
                     posterior_scale=1.0):
-    """Implements egs/sre10/v1/extract_ivectors.sh
+    """Implements Kaldi egs/sre10/v1/extract_ivectors.sh
 
     Parameters
     ----------
     feats : numpy.ndarray
         A 2D numpy ndarray object containing MFCCs.
-
     projector_file : str
-        A path to global GMM file
-
-    num_gselect : int, optional
+        A path to global GMM file.
+    num_gselect : :obj:`int`, optional
         Number of Gaussians to keep per frame.
-    min_post : float, optional
+    min_post : :obj:`float`, optional
         If nonzero, posteriors below this threshold will be pruned
         away and the rest will be renormalized to sum to one.
-    posterior_scale : float, optional
+    posterior_scale : :obj:`float`, optional
         A posterior scaling with a global scale.
 
     Returns

@@ -22,14 +22,14 @@ def open_or_fd(file, mode='rb'):
 
     Parameters
     ----------
-    file : object
+    file : obj
         An ark, gzipped ark, pipe or opened file descriptor.
     mode : str, optional
         A mode of the file.
 
     Returns
     -------
-    object
+    obj
         A file descriptor.
     """
     offset = None
@@ -68,7 +68,7 @@ def read_key(fd):
 
     Parameters
     ----------
-    fd : object
+    fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
 
     Returns
@@ -109,7 +109,7 @@ def read_vec_int_ark(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
@@ -130,7 +130,7 @@ def read_vec_int(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
 
     Returns
@@ -169,7 +169,7 @@ def write_vec_int(file_or_fd, v, key=''):
 
     Parameters
     ----------
-    file_or_fd: object
+    file_or_fd: obj
         filename or opened file descriptor for writing,
     v: list of int
         the vector to be stored,
@@ -219,7 +219,7 @@ def read_vec_flt_ark(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
@@ -240,7 +240,7 @@ def read_vec_flt(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
 
     Raises
@@ -292,7 +292,7 @@ def write_vec_flt(file_or_fd, v, key=b''):
 
     Parameters
     ----------
-    file_or_fd: object
+    file_or_fd: obj
         An ark, gzipped ark, pipe or opened file descriptor.
     v: str
         the vector to be stored,
@@ -358,7 +358,7 @@ def read_mat_scp(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
@@ -387,7 +387,7 @@ def read_mat_ark(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
@@ -408,7 +408,7 @@ def read_mat(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
@@ -476,7 +476,7 @@ def write_mat(file_or_fd, m, key=b''):
 
     Parameters
     ----------
-    file_or_fd: object
+    file_or_fd: obj
         filename of opened file descriptor for writing,
     m: numpy.ndarray
         the matrix to be stored,
@@ -536,7 +536,7 @@ def read_cnet_ark(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
     """
     return read_post_ark(file_or_fd)
@@ -557,7 +557,7 @@ def read_post_ark(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
@@ -586,7 +586,7 @@ def read_post(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
@@ -640,7 +640,7 @@ def read_cntime_ark(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
@@ -669,7 +669,7 @@ def read_cntime(file_or_fd):
 
     Parameters
     ----------
-    file_or_fd : object
+    file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
     """
     fd = open_or_fd(file_or_fd)
@@ -700,7 +700,7 @@ def write_wav(fp, data, rate, bitdepth=16):
 
     Parameters
     ----------
-    fp : object
+    fp : obj
         A file pointer.
     data: numpy.ndarray
         Data samples
