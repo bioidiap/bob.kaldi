@@ -35,7 +35,6 @@ the filename as :obj:`str`:
 
    .. doctest::
 
-      >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
       >>> feat = bob.kaldi.mfcc_from_path(sample)
       >>> print (feat.shape)
       (317, 39)
@@ -60,7 +59,6 @@ are supported, speakers can be enrolled and scored:
   >>> score = bob.kaldi.gmm_score(feat, spk_model, dubm)
   >>> print ('%.3f' % score)
   0.282
-  >>> os.unlink(projector.name)
   >>> os.unlink(projector.name + '.dubm')
   >>> os.unlink(projector.name + '.fubm')
 
