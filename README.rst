@@ -28,26 +28,12 @@ processing and machine learning toolbox Bob_.
 Installation
 ------------
 
-This package depends on both Bob_ and Kaldi_. To install Bob_ follow our
-installation_ instructions. Kaldi_ is also bundled in our conda channnels which
-means you can install Kaldi_ using conda easily too. After you have installed
-Bob_, please follow these instructions to install Kaldi_ too.
-
-.. code-block:: sh
+Follow our `installation`_ instructions. Kaldi_ is bundled in our conda 
+channnels which means you will install Kaldi_ using conda easily too. Then, to
+install this pacakge, run::
 
   $ conda install bob.kaldi
-
-
-Documentation
--------------
-
-For further documentation on this package, please read the `Stable Version
-<http://pythonhosted.org/bob.kaldi/index.html>`_ or the `Latest Version
-<https://www.idiap.ch/software/bob/docs/latest/bioidiap/bob.kaldi/master/index.html>`_
-of the documentation.  For a list of tutorials on this or the other packages of
-Bob_, or information on submitting issues, asking questions and starting
-discussions, please visit its website.
-
+  
 
 Contact
 -------
@@ -57,5 +43,6 @@ development `mailing list`_.
 
 .. _bob: https://www.idiap.ch/software/bob
 .. _kaldi: http://kaldi-asr.org/
-.. _mailing list: https://www.idiap.ch/software/bob/discuss
 .. _installation: https://www.idiap.ch/software/bob/install
+.. _mailing list: https://www.idiap.ch/software/bob/discuss
+
