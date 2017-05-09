@@ -33,10 +33,9 @@ installation_ instructions. Kaldi_ is also bundled in our conda channnels which
 means you can install Kaldi_ using conda easily too. After you have installed
 Bob_, please follow these instructions to install Kaldi_ too.
 
-  # BOB_ENVIRONMENT is the name of your conda enviroment.
-  $ source activate BOB_ENVIRONMENT
-  $ conda install kaldi
-  $ pip install bob.kaldi
+.. code-block:: sh
+
+  $ conda install bob.kaldi
 
 
 Documentation
