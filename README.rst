@@ -6,8 +6,8 @@
    :target: http://pythonhosted.org/bob.kaldi/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.svg
    :target: https://www.idiap.ch/software/bob/docs/latest/bob/bob.kaldi/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/build.svg
-   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/master
+.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/v1.0.2/build.svg
+   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/v1.0.2
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.kaldi
 .. image:: http://img.shields.io/pypi/v/bob.kaldi.svg
