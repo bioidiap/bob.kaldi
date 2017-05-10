@@ -28,12 +28,12 @@ processing and machine learning toolbox Bob_.
 Installation
 ------------
 
-Follow our `installation`_ instructions. Kaldi_ is bundled in our conda 
-channnels which means you will install Kaldi_ using conda easily too. Then, to
-install this pacakge, run::
+Follow our `installation`_ instructions. Then, to install this pacakge, run::
 
   $ conda install bob.kaldi
   
+Kaldi_ is bundled in our conda channnels as well which means installing
+bob.kaldi will automatically install Kaldi_ as well.
 
 Contact
 -------
