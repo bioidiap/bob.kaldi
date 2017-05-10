@@ -18,8 +18,8 @@ setup(
 
     name="bob.kaldi",
     version=version,
-    description="Kaldi Python bindings for BEAT",
-    url='http://gitlab.idiap.ch/biometric/bob.kaldi',
+    description="Python Bindings for Kaldi",
+    url='https://gitlab.idiap.ch/bob/bob.kaldi',
     license="BSD",
     author='Milos Cernak',
     author_email='milo.cernak@idiap.ch',
