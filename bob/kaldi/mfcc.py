@@ -10,6 +10,7 @@ import numpy as np
 from . import io
 from subprocess import PIPE, Popen
 from os.path import isfile
+import tempfile
 import logging
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ def mfcc(data, rate=8000, preemphasis_coefficient=0.97, raw_energy=True,
          frame_length=25, frame_shift=10, num_ceps=13, num_mel_bins=23,
          cepstral_lifter=22, low_freq=20, high_freq=0, dither=1.0,
          snip_edges=True, normalization=True):
-    """Computes the MFCCs for a given input signal
+    """Computes the MFCCs for given speech samples.
 
     Parameters
     ----------
@@ -66,7 +67,7 @@ def mfcc(data, rate=8000, preemphasis_coefficient=0.97, raw_energy=True,
         32-bit floats).
 
     """
-
+    
     binary1 = 'compute-mfcc-feats'
     cmd1 = [binary1]
     binary2 = 'add-deltas'
@@ -116,10 +117,8 @@ def mfcc(data, rate=8000, preemphasis_coefficient=0.97, raw_energy=True,
         io.write_wav(pipe1.stdin, data, rate)
         pipe1.stdin.close()
 
-        # read ark from pipe3.stdout
         ret = [mat for name, mat in io.read_mat_ark(pipe3.stdout)][0]
         return ret
-
 
 def mfcc_from_path(filename, channel=0, preemphasis_coefficient=0.97,
                    raw_energy=True, frame_length=25, frame_shift=10,
@@ -222,68 +221,69 @@ def mfcc_from_path(filename, channel=0, preemphasis_coefficient=0.97,
         ret = [mat for name, mat in io.read_mat_ark(pipe3.stdout)][0]
         return ret
 
-# def compute_vad(feats, vad_energy_mean_scale=0.5, vad_energy_threshold=5,
-# vad_frames_context=0, vad_proportion_threshold=0.6):
-#   """Computes speech/non-speech segments given a Kaldi feature matrix
+def compute_vad(samples, rate, vad_energy_mean_scale=0.5, vad_energy_th=5,
+    vad_frames_context=0, vad_proportion_th=0.6):
+    """Performs Voice Activity Detection on a Kaldi feature matrix
 
-#   Parameters:
+    Parameters
+    ----------
+    feats : numpy.ndarray
+        A 2-D numpy array, with log-energy being in the first
+        component of each feature vector
+    rate : float
+        The sampling rate of the input signal in ``samples``.
+    vad_energy_mean_scale: :obj:`float`, optional
+        If this is set to s, to get the actual threshold we let m be the mean
+        log-energy of the file, and use s*m + vad-energy-th
+    vad_energy_th: :obj:`float`, optional
+        Constant term in energy threshold for MFCC0 for VAD.
+    vad_frames_context: :obj:`int`, optional
+        Number of frames of context on each side of central frame,
+        in window for which energy is monitored 
+    vad_proportion_th: :obj:`float`, optional
+        Parameter controlling the proportion of frames within the window that
+        need to have more energy than the threshold
 
-# feats (matrix): A 2-D numpy array, with log-energy being in the first
-# component of each feature vector
+    Returns
+    -------
 
+    numpy.ndarray
+        The labels [1/0] of voiced features (1D array of floats).
+    """
 
-#   Returns:
+    binary1 = 'compute-mfcc-feats'
+    cmd1 = [binary1]
+    binary2 = 'compute-vad'
+    cmd2 = [binary2]
 
-#     A list of speech segments as a int32 numpy array with start and end times
+    cmd1 += [
+        '--sample-frequency=' + str(rate),
+        'ark:-',
+        'ark:-',
+    ]
+    cmd2 += [
+        '--vad-energy-mean-scale=' + str(vad_energy_mean_scale),
+        '--vad-energy-threshold=' + str(vad_energy_th),
+        '--vad-frames-context=' + str(vad_frames_context),
+        '--vad-proportion-threshold=' + str(vad_proportion_th),
+        'ark:-',
+        'ark:-',
+    ]
 
-#   Raises:
+    samples /= np.max(np.abs(samples), axis=0)  # normalize to [-1,1]
 
-#     RuntimeError: if any problem was detected during the conversion.
+    with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+        pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
+        pipe2 = Popen(cmd2, stdin=pipe1.stdout, stdout=PIPE, stderr=logfile)
 
-#     IOError: if the binary to be executed does not exist
+        pipe1.stdin.write(b'abc ')
+        io.write_wav(pipe1.stdin, samples, rate)
+        pipe1.stdin.close()
 
-#   """
+        with open(logfile.name) as fp:
+            logtxt = fp.read()
+            logger.debug("%s", logtxt)
 
-#   name = 'abc'
-#   binary1 = utils.kaldi_path(['src', 'ivectorbin', 'compute-vad'])
-#   cmd1 = [binary1]
-
-#   # compute features into the ark file
-#   cmd1 += [
-#       '--vad-energy-mean-scale=' + str(vad_energy_mean_scale),
-#       '--vad-energy-threshold=' + str(vad_energy_threshold),
-#       '--vad-frames-context=' + str(vad_frames_context),
-#       '--vad-proportion-threshold=' + str(vad_proportion_threshold),
-#       'ark:-',
-#       'ark:-',
-#       ]
-
-#   with tempfile.NamedTemporaryFile(suffix='.seg') as segfile:
-#     binary2 = utils.kaldi_path(
-# ['src', 'ivectorbin', 'create-split-from-vad'])
-#     cmd2 = [binary2]
-
-#     cmd2 += [
-#       'ark:-',
-#       segfile.name,
-#     ]
-
-#     with open(os.devnull, "w") as fnull:
-#       # pipe1 numpy matrix -> compute-vad
-#       pipe1 = Popen(cmd1, stdout=PIPE, stdin=PIPE, stderr=fnull)
-#       pipe2 = Popen(cmd2, stdout=PIPE, stdin=pipe1.stdout, stderr=fnull)
-
-#       # write ark file into pipe.stdin
-#       io.write_mat(pipe1.stdin, feats, key='abc')
-#       pipe1.stdin.close()
-
-#       # wait for piped execution to finish
-#       pipe2.communicate()
-
-#       # segfile should have the segmented output. read the file
-#       segs = []
-#       with open(segfile.name) as fp:
-#         for l in fp.readlines():
-#           start, end = l.split()[2:]
-#           segs.append([start, end])
-#       return np.array(segs, dtype='int32')
+        # read ark from pipe2.stdout
+        ret = [mat for name, mat in io.read_vec_flt_ark(pipe2.stdout)][0]
+        return ret
