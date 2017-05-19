@@ -51,7 +51,7 @@ with the labels of 0 (zero) or 1 (one) per speech frame:
 
    >>> VAD_labels = bob.kaldi.compute_vad(data.load()[0], data.rate)
    >>> print (len(VAD_labels))
-   (317)
+   317
 
 
 UBM training and evaluation
