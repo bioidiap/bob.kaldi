@@ -16,18 +16,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600,
-                  use_weights=False, num_iters=5, min_post=0.025,
-                  num_samples_for_weights=3, posterior_scale=1.0):
+def ivector_train(feats, fubm, ivector_extractor, num_gselect=20,
+                  ivector_dim=600, use_weights=False, num_iters=5,
+                  min_post=0.025, num_samples_for_weights=3,
+                  posterior_scale=1.0):
     """Implements Kaldi egs/sre10/v1/train_ivector_extractor.sh
 
     Parameters
     ----------
     feats : numpy.ndarray
         A 2D numpy ndarray object containing MFCCs.
-
-    projector_file : str
-        A path to global GMM file
+    fubm : str
+        A path to full-diagonal UBM file
+    ivector_extractor : str
+        A path to the ivector extractor
 
     num_gselect : :obj:`int`, optional
         Number of Gaussians to keep per frame.
@@ -61,8 +63,6 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600,
     binary6 = 'ivector-extractor-acc-stats'
     binary7 = 'ivector-extractor-est'
 
-    fgmm_model = projector_file + '.fubm'
-
     # 1. Create Kaldi training data structure
     # ToDo: implement Bob's function for that
     with tempfile.NamedTemporaryFile(delete=False, suffix='.ark') as arkfile:
@@ -79,7 +79,7 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600,
     with tempfile.NamedTemporaryFile(delete=False, suffix='.dubm') as \
     dubmfile, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
         cmd1 += [
-            fgmm_model,
+            fubm,
             dubmfile.name,
         ]
         pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
@@ -94,7 +94,7 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600,
         cmd2 += [
             '--ivector-dim=' + str(ivector_dim),
             '--use-weights=' + str(use_weights).lower(),
-            fgmm_model,
+            fubm,
             iefile.name,
         ]
         pipe2 = Popen(cmd2, stdin=PIPE, stdout=PIPE, stderr=logfile)
@@ -130,7 +130,7 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600,
         cmd4 = [binary4] # fgmm-global-gselect-to-post
         cmd4 += [
             '--min-post=' + str(min_post),
-            fgmm_model,
+            fubm,
             'ark:' + arkfile.name,
             'ark:' + gselfile.name,
             'ark:-',
@@ -201,21 +201,23 @@ def ivector_train(feats, projector_file, num_gselect=20, ivector_dim=600,
                     os.unlink(inModel)
                     inModel = estfile.name
 
-    shutil.copyfile(inModel, projector_file + '.ie')
+    shutil.copyfile(inModel, ivector_extractor)
     os.unlink(inModel)
 
-    return projector_file + '.ie'
+    return ivector_extractor # ToDo: covert to the string
 
 
-def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025,
-                    posterior_scale=1.0):
+def ivector_extract(feats, fubm, ivector_extractor, num_gselect=20,
+                    min_post=0.025, posterior_scale=1.0):
     """Implements Kaldi egs/sre10/v1/extract_ivectors.sh
 
     Parameters
     ----------
     feats : numpy.ndarray
         A 2D numpy ndarray object containing MFCCs.
-    projector_file : str
+    fubm : str
+        A path to full-diagonal UBM file
+    ivector_extractor : str
         A path to global GMM file.
     num_gselect : :obj:`int`, optional
         Number of Gaussians to keep per frame.
@@ -241,14 +243,13 @@ def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025,
     # import ipdb; ipdb.set_trace()
     # ivector-extract --verbose=2 $srcdir/final.ie "$feats" ark,s,cs:- \
     # ark,scp,t:$dir/ivector.JOB.ark,$dir/ivector.JOB.scp || exit 1;
-    fgmm_model = projector_file + '.fubm'
 
     # Initialize the i-vector extractor using the FGMM input
     cmd1 = [binary1] # fgmm-global-to-gmm
     with tempfile.NamedTemporaryFile(delete=False, suffix='.dubm') as \
     dubmfile, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
         cmd1 += [
-            fgmm_model,
+            fubm,
             dubmfile.name,
         ]
         pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
@@ -277,7 +278,7 @@ def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025,
         cmd2 = [binary3] # fgmm-global-gselect-to-post
         cmd2 += [
             '--min-post=' + str(min_post),
-            fgmm_model,
+            fubm,
             'ark:-',
             'ark,s,cs:' + gselfile.name,
             'ark:-',
@@ -302,7 +303,7 @@ def ivector_extract(feats, projector_file, num_gselect=20, min_post=0.025,
 
         cmd4 = [binary5] # ivector-extract
         cmd4 += [
-            projector_file + '.ie',
+            ivector_extractor,
             'ark:-',
             'ark,s,cs:' + postfile.name,
             'ark:-',

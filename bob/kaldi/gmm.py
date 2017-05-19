@@ -57,7 +57,7 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
     Returns
     -------
     str
-            A path to the the trained ubm model.
+            A text formatted trained Kaldi global DiagGMM model.
 
     """
 
@@ -66,6 +66,7 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
     binary3 = 'gmm-gselect'
     binary4 = 'gmm-global-acc-stats'
     binary5 = 'gmm-global-est'
+    binary6 = 'gmm-global-copy'
 
     # 1. Initialize a single diagonal GMM
     cmd1 = [binary1] # gmm-global-init-from-feats
@@ -175,16 +176,34 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
                             
                     os.unlink(inModel)
                     inModel = estfile.name
-                    
-    os.unlink(gselfile.name)
+   
+    # 6. Copy a single diagonal GMM as text string (for the BEAT platform)
+    ret = ""
+    with tempfile.NamedTemporaryFile(suffix='.txt') as txtfile, \
+         tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+        cmd = [binary6] # gmm-global-copy
+        cmd += [
+            '--binary=false',
+            estfile.name,
+            txtfile.name,
+        ]
+        pipe = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=logfile)
+        pipe.communicate()
+        with open(logfile.name) as fp:
+            logtxt = fp.read()
+            logger.debug("%s", logtxt)
+        with open(txtfile.name, 'rt') as f:
+            ubmtxt = f.read()
+            ret = ubmtxt
+
     shutil.copyfile(estfile.name, ubmname)
-    shutil.copyfile(estfile.name, ubmname + '.dubm')
     os.unlink(estfile.name)
-    
-    return ubmname + '.dubm'
+    os.unlink(gselfile.name)
+            
+    return ret
 
 
-def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4,
+def ubm_full_train(feats, dubm, fubmfile, num_gselect=20, num_iters=4,
                    min_gaussian_weight=1.0e-04):
     """ Implements Kaldi egs/sre10/v1/train_full_ubm.sh
 
@@ -192,10 +211,10 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4,
     ----------
     feats : numpy.ndarray
             A 2D numpy ndarray object containing MFCCs.
-
-    dubmname : str
-            A path to the UBM model.
-
+    dubm : str
+            A text formatted trained Kaldi global DiagGMM model.
+    fubmfile : str
+            A path to the full covariance UBM model.
     num_gselect : :obj:`int`, optional
             Number of Gaussians to keep per frame.
     num_iters : :obj:`int`, optional
@@ -207,19 +226,22 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4,
     Returns
     -------
     str
-            A path to the the trained full covariance UBM model.
+            A path to the full covariance UBM model.
 
     """
 
     binary1 = 'gmm-global-to-fgmm'
-    binary2 = 'fgmm-global-to-gmm'
+    # binary2 = 'fgmm-global-to-gmm'
     binary3 = 'subsample-feats'
     binary4 = 'gmm-gselect'
     binary5 = 'fgmm-global-acc-stats'
     binary6 = 'fgmm-global-est'
 
-    origdubm = dubmname
-    dubmname += '.dubm'
+    # Convert UBM string to a file
+    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix='.dump') as dubmfile:
+        with open(dubmfile.name, 'wt') as fp:
+            fp.write(dubm)
 
     # 1. Init (diagonal GMM to full-cov. GMM)
     # gmm-global-to-fgmm $srcdir/final.dubm $dir/0.ubm || exit 1;
@@ -229,7 +251,7 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4,
     initfile, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
         inModel = initfile.name
         cmd1 += [
-            dubmname,
+            dubmfile.name,
             inModel,
         ]
         pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
@@ -243,20 +265,10 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4,
     # gmm-gselect --n=$num_gselect "fgmm-global-to-gmm $dir/0.ubm - \
     # |" "$feats" \
     #   "ark:|gzip -c >$dir/gselect.JOB.gz" || exit 1;
-    cmd2 = [binary2] # fgmm-global-to-gmm
-    with tempfile.NamedTemporaryFile(suffix='.dubm') as dubmfile, \
-         tempfile.NamedTemporaryFile(suffix='.ark') as arkfile, \
+    # cmd2 = [binary2] # fgmm-global-to-gmm
+    # with tempfile.NamedTemporaryFile(suffix='.dubm') as dubmfile, \
+    with tempfile.NamedTemporaryFile(suffix='.ark') as arkfile, \
          tempfile.NamedTemporaryFile(suffix='.gz') as gselfile:
-        cmd2 += [
-            inModel,
-            dubmfile.name,
-        ]
-        with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
-            pipe2 = Popen(cmd2, stdin=PIPE, stdout=PIPE, stderr=logfile)
-            pipe2.communicate()
-            with open(logfile.name) as fp:
-                logtxt = fp.read()
-                logger.debug("%s", logtxt)
         # subsample-feats --n=$subsample ark:- ark:- |"
         cmd = [binary3] # subsample-feats
         cmd += [
@@ -337,36 +349,43 @@ def ubm_full_train(feats, dubmname, num_gselect=20, num_iters=4,
                         os.unlink(inModel)
                         inModel = estfile.name
                         
-    shutil.copyfile(estfile.name, origdubm + '.fubm')
+    shutil.copyfile(estfile.name, fubmfile)
     os.unlink(estfile.name)
+    os.unlink(dubmfile.name)
     
-    return origdubm + '.fubm'
+    return fubmfile # ToDo : covert to a text format
 
-def ubm_enroll(feats, ubm_file):
+def ubm_enroll(feats, ubm):
     """Performes MAP adaptation of GMM-UBM model.
 
     Parameters
     ----------
     feats : numpy.ndarray
         A 2D numpy ndarray object containing MFCCs.
-    ubm_file : str
-        A path to the Kaldi global GMM.
+    ubm : str
+        A text formatted Kaldi global DiagGMM.
 
 
     Returns
     -------
     str
-        A path to the enrolled GMM.
+        A text formatted Kaldi enrolled DiagGMM.
 
     """
 
     binary1 = 'gmm-global-acc-stats'
     binary2 = 'global-gmm-adapt-map'
+    binary3 = 'gmm-global-copy'
 
+    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix='.dump') as ubmfile:
+        with open(ubmfile.name, 'wt') as fp:
+            fp.write(ubm)
+            
     # 1. Accumulate stats for training a diagonal-covariance GMM.
     cmd1 = [binary1] # gmm-global-acc-stats
     cmd1 += [
-        ubm_file,
+        ubmfile.name,
         'ark:-',
         '-',
     ]
@@ -375,7 +394,7 @@ def ubm_enroll(feats, ubm_file):
     estfile, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
         cmd2 += [
             '--update-flags=m',
-            ubm_file,
+            ubmfile.name,
             '-',
             estfile.name,
         ]
@@ -392,9 +411,33 @@ def ubm_enroll(feats, ubm_file):
             logtxt = fp.read()
             logger.debug("%s", logtxt)
 
-    return estfile.name
 
-def gmm_score(feats, gmm_file, ubm_file):
+    # 3. Copy adapted diagonal GMM as text string (for the BEAT platform)
+    ret = ""
+    with tempfile.NamedTemporaryFile(suffix='.txt') as txtfile, \
+         tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+        cmd = [binary3] # gmm-global-copy
+        cmd += [
+            '--binary=false',
+            estfile.name,
+            txtfile.name,
+        ]
+        pipe = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=logfile)
+        pipe.communicate()
+        with open(logfile.name) as fp:
+            logtxt = fp.read()
+            logger.debug("%s", logtxt)
+        with open(txtfile.name, 'rt') as f:
+            ubmtxt = f.read()
+
+            ret = ubmtxt
+    
+    os.unlink(ubmfile.name)
+    os.unlink(estfile.name)
+
+    return ret
+
+def gmm_score(feats, spkubm, ubm):
     """Print out per-frame log-likelihoods for input utterance.
 
     Parameters
@@ -402,10 +445,10 @@ def gmm_score(feats, gmm_file, ubm_file):
     feats : numpy.ndarray
         A 2D numpy ndarray object containing MFCCs.
 
-    gmm_file : str
-        A path to Kaldi adapted global GMM.
-    ubm_file : str
-        A path to Kaldi global GMM.
+    spkubm : str
+        A text formatted Kaldi adapted global DiagGMM.
+    ubm : str
+        A text formatted Kaldi global DiagGMM.
 
 
     Returns
@@ -416,10 +459,22 @@ def gmm_score(feats, gmm_file, ubm_file):
     """
 
     binary1 = 'gmm-global-get-frame-likes'
+
+    # Convert UBM string to a file
+    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix='.dubm') as ubmfile:
+        with open(ubmfile.name, 'wt') as fp:
+            fp.write(ubm)
+
+    # Convert speaker UBM string to a file
+    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix='.dubm') as spkubmfile:
+        with open(spkubmfile.name, 'wt') as fp:
+            fp.write(spkubm)            
     
     models = [
-        gmm_file,
-        ubm_file
+        spkubmfile.name,
+        ubmfile.name
     ]
     ret = [0, 0]
     # import ipdb; ipdb.set_trace()
@@ -449,6 +504,8 @@ def gmm_score(feats, gmm_file, ubm_file):
                 logtxt = fp.read()
                 logger.debug("%s", logtxt)
 
+    os.unlink(ubmfile.name)
+    os.unlink(spkubmfile.name)
     return ret[0] - ret[1]
 
 # def gmm_score_fast(feats, gmm_file, ubm_file):

@@ -18,6 +18,9 @@ import bob.kaldi
 def test_ivector_train():
 
     temp_dubm_file = bob.io.base.test_utils.temporary_filename()
+    temp_fubm_file = bob.io.base.test_utils.temporary_filename()
+    temp_ivec_file = bob.io.base.test_utils.temporary_filename()
+    
     sample = pkg_resources.resource_filename(__name__, 'data/sample16k.wav')
 
     data = bob.io.audio.reader(sample)
@@ -27,11 +30,11 @@ def test_ivector_train():
     dubm = bob.kaldi.ubm_train(array, temp_dubm_file, num_gauss=2,
                                num_gselect=2, num_iters=2)
     # Train small full GMM
-    ubm = bob.kaldi.ubm_full_train(array, temp_dubm_file,
-                                   num_gselect=2, num_iters=2)
+    fubm = bob.kaldi.ubm_full_train(array, dubm, temp_fubm_file,
+                               num_gselect=2, num_iters=2)
     # Train small ivector extractor
-    ivector = bob.kaldi.ivector_train(
-        array, temp_dubm_file, num_gselect=2, ivector_dim=20, num_iters=2)
+    ivector = bob.kaldi.ivector_train(array, fubm, temp_ivec_file,
+                               num_gselect=2, ivector_dim=20, num_iters=2)
 
     assert os.path.exists(ivector)
 
@@ -39,6 +42,9 @@ def test_ivector_train():
 def test_ivector_extract():
 
     temp_dubm_file = bob.io.base.test_utils.temporary_filename()
+    temp_fubm_file = bob.io.base.test_utils.temporary_filename()
+    temp_ivec_file = bob.io.base.test_utils.temporary_filename()
+
     sample = pkg_resources.resource_filename(__name__, 'data/sample16k.wav')
     reference = pkg_resources.resource_filename(
         __name__, 'data/sample16k.ivector')
@@ -50,13 +56,13 @@ def test_ivector_extract():
     dubm = bob.kaldi.ubm_train(array, temp_dubm_file, num_gauss=2,
                                num_gselect=2, num_iters=2)
     # Train small full GMM
-    ubm = bob.kaldi.ubm_full_train(array, temp_dubm_file,
+    fubm = bob.kaldi.ubm_full_train(array, dubm, temp_fubm_file,
                                    num_gselect=2, num_iters=2)
     # Train small ivector extractor
-    ivector = bob.kaldi.ivector_train(
-        array, temp_dubm_file, num_gselect=2, ivector_dim=20, num_iters=2)
+    ivector = bob.kaldi.ivector_train(array, fubm, temp_ivec_file,
+                               num_gselect=2, ivector_dim=20, num_iters=2)
     # Extract ivector
-    ivector_array = bob.kaldi.ivector_extract(array, temp_dubm_file,
+    ivector_array = bob.kaldi.ivector_extract(array, fubm, ivector,
                                               num_gselect=2)
 
     theirs = np.loadtxt(reference)

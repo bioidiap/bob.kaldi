@@ -28,12 +28,14 @@ def test_ubm_train():
     dubm = bob.kaldi.ubm_train(array, temp_file, num_gauss=2,
                                num_gselect=2, num_iters=2)
 
-    assert os.path.exists(dubm)
+    # assert os.path.exists(dubm)
+    assert dubm.find('DiagGMM')
 
 
 def test_ubm_full_train():
 
     temp_dubm_file = bob.io.base.test_utils.temporary_filename()
+    temp_fubm_file = bob.io.base.test_utils.temporary_filename()
     sample = pkg_resources.resource_filename(__name__, 'data/sample16k.wav')
 
     data = bob.io.audio.reader(sample)
@@ -43,7 +45,7 @@ def test_ubm_full_train():
     dubm = bob.kaldi.ubm_train(array, temp_dubm_file, num_gauss=2,
                                num_gselect=2, num_iters=2)
     # Train small full GMM
-    ubm = bob.kaldi.ubm_full_train(array, temp_dubm_file,
+    ubm = bob.kaldi.ubm_full_train(array, dubm, temp_fubm_file,
                                    num_gselect=2, num_iters=2)
 
     assert os.path.exists(ubm)
@@ -64,8 +66,8 @@ def test_ubm_enroll():
     # Perform MAP adaptation of the GMM
     spk_model = bob.kaldi.ubm_enroll(array, dubm)
 
-    assert os.path.exists(spk_model)
-
+    # assert os.path.exists(spk_model)
+    assert spk_model.find('DiagGMM')
 
 def test_gmm_score():
 
