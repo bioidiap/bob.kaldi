@@ -46,11 +46,11 @@ def test_compute_vad():
 
     sample = pkg_resources.resource_filename(__name__, 'data/sample16k.wav')
     reference = pkg_resources.resource_filename(
-        __name__, 'data/sample16k-mfcc.txt')
+        __name__, 'data/sample16k-vad.txt')
 
     data = bob.io.audio.reader(sample)
 
     ours = bob.kaldi.compute_vad(data.load()[0], data.rate)
     theirs = np.loadtxt(reference)
 
-    assert len(ours) == len(theirs)
+    assert np.allclose(ours, theirs)
