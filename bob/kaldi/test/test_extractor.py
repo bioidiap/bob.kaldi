@@ -42,24 +42,15 @@ def test_mfcc_from_path():
     assert np.allclose(ours, theirs, 1e-03, 1e-05)
 
 
-# def test_compute_vad():
+def test_compute_vad():
 
-#   refseg = pkg_resources.resource_filename(__name__, 'data/sample16k.seg')
+    sample = pkg_resources.resource_filename(__name__, 'data/sample16k.wav')
+    reference = pkg_resources.resource_filename(
+        __name__, 'data/sample16k-vad.txt')
 
-#   # read and parse reference segmentation file into numpy array of int32
-#   segsref = []
-#   with open(refseg) as fp:
-#     for l in fp.readlines():
-#       l = l.strip()
-#       s = l.split()
-#       start = int(s[2])
-#       end = int(s[3])
-#       segsref.append([ start, end ])
-#   segsref = np.array(segsref, dtype='int32')
+    data = bob.io.audio.reader(sample)
 
-#   feats = [mat for name,mat in io.read_mat_ark(
-# pkg_resources.resource_filename(__name__,'data/sample16k.ark') )][0]
+    ours = bob.kaldi.compute_vad(data.load()[0], data.rate)
+    theirs = np.loadtxt(reference)
 
-#   segs = bob.kaldi.compute_vad(feats)
-
-#   assert np.array_equal(segs,segsref)
+    assert np.allclose(ours, theirs)

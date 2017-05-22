@@ -39,6 +39,20 @@ the filename as :obj:`str`:
       >>> print (feat.shape)
       (317, 39)
 
+Voice Activity Detection (VAD)
+------------------------------
+
+A simple energy-based VAD is implemented in :py:func:`bob.kaldi.compute_vad`.
+The function expects the speech samples as :obj:`numpy.ndarray` and the sampling
+rate as :obj:`float`, and returns an array of VAD labels :obj:`numpy.ndarray`
+with the labels of 0 (zero) or 1 (one) per speech frame:
+
+.. doctest::
+
+   >>> VAD_labels = bob.kaldi.compute_vad(data.load()[0], data.rate)
+   >>> print (len(VAD_labels))
+   317
+
 
 UBM training and evaluation
 ---------------------------
@@ -49,18 +63,17 @@ are supported, speakers can be enrolled and scored:
 .. doctest::
 
   >>> # Train small diagonall GMM
-  >>> projector = tempfile.NamedTemporaryFile()
-  >>> dubm = bob.kaldi.ubm_train(feat, projector.name, num_gauss=2, num_gselect=2, num_iters=2)
+  >>> diag_gmm_file = tempfile.NamedTemporaryFile()
+  >>> full_gmm_file = tempfile.NamedTemporaryFile()
+  >>> dubm = bob.kaldi.ubm_train(feat, diag_gmm_file.name, num_gauss=2, num_gselect=2, num_iters=2)
   >>> # Train small full GMM
-  >>> ubm = bob.kaldi.ubm_full_train(feat, projector.name, num_gselect=2, num_iters=2)
+  >>> ubm = bob.kaldi.ubm_full_train(feat, dubm, full_gmm_file.name, num_gselect=2, num_iters=2)
   >>> # Enrollement - MAP adaptation of the UBM-GMM
   >>> spk_model = bob.kaldi.ubm_enroll(feat, dubm)
   >>> # GMM scoring
   >>> score = bob.kaldi.gmm_score(feat, spk_model, dubm)
   >>> print ('%.3f' % score)
   0.282
-  >>> os.unlink(projector.name + '.dubm')
-  >>> os.unlink(projector.name + '.fubm')
 
 Following guide describes how to run whole speaker recognition experiments:
 
