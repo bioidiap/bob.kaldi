@@ -45,10 +45,10 @@ def test_ubm_full_train():
     dubm = bob.kaldi.ubm_train(array, temp_dubm_file, num_gauss=2,
                                num_gselect=2, num_iters=2)
     # Train small full GMM
-    ubm = bob.kaldi.ubm_full_train(array, dubm, temp_fubm_file,
+    fubm = bob.kaldi.ubm_full_train(array, dubm, temp_fubm_file,
                                    num_gselect=2, num_iters=2)
 
-    assert os.path.exists(ubm)
+    assert fubm.find('FullGMM')
 
 
 def test_ubm_enroll():

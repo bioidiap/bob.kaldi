@@ -332,6 +332,7 @@ def ubm_full_train(feats, dubm, fubmfile, num_gselect=20, num_iters=4,
                         delete=False, suffix='.dump') as estfile:
                     cmd5 += [
                         opt,
+                        '--binary=false',
                         '--min-gaussian-weight=' +
                         str(min_gaussian_weight),
                         inModel,
@@ -352,8 +353,10 @@ def ubm_full_train(feats, dubm, fubmfile, num_gselect=20, num_iters=4,
     shutil.copyfile(estfile.name, fubmfile)
     os.unlink(estfile.name)
     os.unlink(dubmfile.name)
-    
-    return fubmfile # ToDo : covert to a text format
+
+    with open(fubmfile) as fp:
+        fubmtxt = fp.read()
+        return fubmtxt
 
 def ubm_enroll(feats, ubm):
     """Performes MAP adaptation of GMM-UBM model.

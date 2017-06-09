@@ -36,7 +36,7 @@ def test_ivector_train():
     ivector = bob.kaldi.ivector_train(array, fubm, temp_ivec_file,
                                num_gselect=2, ivector_dim=20, num_iters=2)
 
-    assert os.path.exists(ivector)
+    assert ivector.find('IvectorExtractor')
 
 
 def test_ivector_extract():
@@ -72,36 +72,43 @@ def test_ivector_extract():
 
 def test_plda_train():
 
-    temp_file = bob.io.base.test_utils.temporary_filename()
+    plda_file = bob.io.base.test_utils.temporary_filename()
+    mean_file = bob.io.base.test_utils.temporary_filename()
     features = pkg_resources.resource_filename(
         __name__, 'data/feats-mobio.npy')
 
     feats = np.load(features)
 
     # Train PLDA
-    plda = bob.kaldi.plda_train(feats, temp_file)
+    plda = bob.kaldi.plda_train(feats, plda_file, mean_file)
 
-    assert os.path.exists(temp_file + '.plda')
-    assert os.path.exists(temp_file + '.plda.mean')
+    assert plda[0].find('Plda')
+    assert os.path.exists(mean_file)
 
 
 def test_plda_enroll():
 
-    temp_file = bob.io.base.test_utils.temporary_filename()
+    plda_file = bob.io.base.test_utils.temporary_filename()
+    mean_file = bob.io.base.test_utils.temporary_filename()
     features = pkg_resources.resource_filename(
         __name__, 'data/feats-mobio.npy')
 
     feats = np.load(features)
 
     # Train PLDA
-    plda = bob.kaldi.plda_enroll(feats, temp_file)
+    plda = bob.kaldi.plda_train(feats, plda_file, mean_file)
 
-    assert os.path.exists(plda)
+    # Enroll; plda[0] - PLDA model, plda[1] - PLDA global mean
+    enrolled = bob.kaldi.plda_enroll(feats, plda[1])
+
+    assert enrolled.find('spk36')
 
 
 def test_plda_score():
 
-    temp_file = bob.io.base.test_utils.temporary_filename()
+    plda_file = bob.io.base.test_utils.temporary_filename()
+    mean_file = bob.io.base.test_utils.temporary_filename()
+    spk_file = bob.io.base.test_utils.temporary_filename()
     test_file = pkg_resources.resource_filename(
         __name__, 'data/test-mobio.ivector')
     features = pkg_resources.resource_filename(
@@ -111,10 +118,10 @@ def test_plda_score():
     test_feats = np.loadtxt(test_file)
 
     # Train PLDA
-    plda = bob.kaldi.plda_train(train_feats, temp_file)
-    # Enroll PLDA (average speaker)
-    enrolled = bob.kaldi.plda_enroll(train_feats[0], temp_file)
+    plda = bob.kaldi.plda_train(train_feats, plda_file, mean_file)
+    # Enroll PLDA (for the first speaker)
+    enrolled = bob.kaldi.plda_enroll(train_feats[0], plda[1])
     # Score PLDA
-    score = bob.kaldi.plda_score(test_feats, enrolled, temp_file)
+    score = bob.kaldi.plda_score(test_feats, enrolled, plda[0], plda[1])
 
     assert np.allclose(score, [-23.9922], 1e-03, 1e-05)
