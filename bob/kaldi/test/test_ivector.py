@@ -99,7 +99,7 @@ def test_plda_enroll():
     plda = bob.kaldi.plda_train(feats, plda_file, mean_file)
 
     # Enroll; plda[0] - PLDA model, plda[1] - PLDA global mean
-    enrolled = bob.kaldi.plda_enroll(feats, plda[1])
+    enrolled = bob.kaldi.plda_enroll(feats[0], plda[1])
 
     assert enrolled.find('spk36')
 
