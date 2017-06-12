@@ -7,11 +7,11 @@
    import bob.kaldi
    import bob.io.audio
    import tempfile
-   import os
+   import numpy
 
-=======================
- Using Kaldi in Python
-=======================
+================================
+ Speaker recognition evaluation
+================================
 
 MFCC Extraction
 ---------------
@@ -75,33 +75,30 @@ are supported, speakers can be enrolled and scored:
   >>> print ('%.3f' % score)
   0.282
 
-Following guide describes how to run whole speaker recognition experiments:
+iVector + PLDA training and evaluation
+--------------------------------------
 
-1. To run the UBM-GMM with MAP adaptation speaker recognition experiment, run:
+The implementation is based on Kaldi recipe SRE10_. It includes
+ivector extrator training from full-diagonal GMMs, PLDA model
+training, and PLDA scoring.
 
-.. code-block:: sh
+.. doctest::
 
-	verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'gmm-kaldi' -s exp-gmm-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
-
-2. To run the ivector+plda speaker recognition experiment, run:
-
-.. code-block:: sh
-
-	verify.py -d 'mobio-audio-male' -p 'energy-2gauss' -e 'mfcc-kaldi' -a 'ivector-plda-kaldi' -s exp-ivector-plda-kaldi --groups {dev,eval} -R '/your/work/directory/' -T '/your/temp/directory' -vv
-
-3. Results:
-
-+---------------------------------------------------+--------+--------+
-| Experiment description                            |    EER |   HTER |
-+---------------------------------------------------+--------+--------+
-| -e 'mfcc-kaldi', -a 'gmm-kadi', 100GMM            | 18.53% | 14.52% |
-+---------------------------------------------------+--------+--------+
-| -e 'mfcc-kaldi', -a 'gmm-kadi', 512GMM            | 17.51% | 12.44% |
-+---------------------------------------------------+--------+--------+
-| -e 'mfcc-kaldi', -a 'ivector-plda-kaldi', 64GMM   | 12.26% | 11.97% |
-+---------------------------------------------------+--------+--------+
-| -e 'mfcc-kaldi', -a 'ivector-plda-kaldi', 256GMM  | 11.35% | 11.46% |
-+---------------------------------------------------+--------+--------+
+  >>> plda_file = tempfile.NamedTemporaryFile()
+  >>> mean_file = tempfile.NamedTemporaryFile()
+  >>> spk_file = tempfile.NamedTemporaryFile()
+  >>> test_file = pkg_resources.resource_filename('bob.kaldi', 'test/data/test-mobio.ivector')
+  >>> features = pkg_resources.resource_filename('bob.kaldi', 'test/data/feats-mobio.npy')
+  >>> train_feats = numpy.load(features)
+  >>> test_feats = numpy.loadtxt(test_file)
+  >>> # Train PLDA model; plda[0] - PLDA model, plda[1] - global mean
+  >>> plda = bob.kaldi.plda_train(train_feats, plda_file.name, mean_file.name)
+  >>> # Speaker enrollment (calculate average iVectors for the first speaker)
+  >>> enrolled = bob.kaldi.plda_enroll(train_feats[0], plda[1])
+  >>> # Calculate PLDA score
+  >>> score = bob.kaldi.plda_score(test_feats, enrolled, plda[0], plda[1])
+  >>> print ('%.4f' % score)
+  -23.9922
 
 
 .. include:: links.rst

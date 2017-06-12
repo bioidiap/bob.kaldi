@@ -27,9 +27,9 @@ def ivector_train(feats, fubm, ivector_extractor, num_gselect=20,
     feats : numpy.ndarray
         A 2D numpy ndarray object containing MFCCs.
     fubm : str
-        A path to full-diagonal UBM file
+        A full-diagonal UBM
     ivector_extractor : str
-        A path to the ivector extractor
+        A path for the ivector extractor
 
     num_gselect : :obj:`int`, optional
         Number of Gaussians to keep per frame.
@@ -51,7 +51,7 @@ def ivector_train(feats, fubm, ivector_extractor, num_gselect=20,
     Returns
     -------
     str
-        A path to the iVector extractor.
+        A text formatted trained Kaldi IvectorExtractor.
 
     """
 
@@ -63,6 +63,12 @@ def ivector_train(feats, fubm, ivector_extractor, num_gselect=20,
     binary6 = 'ivector-extractor-acc-stats'
     binary7 = 'ivector-extractor-est'
 
+    # Convert full diagonal UBM string to a file
+    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix='.fump') as fubmfile:
+        with open(fubmfile.name, 'wt') as fp:
+            fp.write(fubm)
+            
     # 1. Create Kaldi training data structure
     # ToDo: implement Bob's function for that
     with tempfile.NamedTemporaryFile(delete=False, suffix='.ark') as arkfile:
@@ -79,7 +85,7 @@ def ivector_train(feats, fubm, ivector_extractor, num_gselect=20,
     with tempfile.NamedTemporaryFile(delete=False, suffix='.dubm') as \
     dubmfile, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
         cmd1 += [
-            fubm,
+            fubmfile.name,
             dubmfile.name,
         ]
         pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
@@ -94,7 +100,7 @@ def ivector_train(feats, fubm, ivector_extractor, num_gselect=20,
         cmd2 += [
             '--ivector-dim=' + str(ivector_dim),
             '--use-weights=' + str(use_weights).lower(),
-            fubm,
+            fubmfile.name,
             iefile.name,
         ]
         pipe2 = Popen(cmd2, stdin=PIPE, stdout=PIPE, stderr=logfile)
@@ -130,7 +136,7 @@ def ivector_train(feats, fubm, ivector_extractor, num_gselect=20,
         cmd4 = [binary4] # fgmm-global-gselect-to-post
         cmd4 += [
             '--min-post=' + str(min_post),
-            fubm,
+            fubmfile.name,
             'ark:' + arkfile.name,
             'ark:' + gselfile.name,
             'ark:-',
@@ -187,6 +193,7 @@ def ivector_train(feats, fubm, ivector_extractor, num_gselect=20,
                          logfile:
                     cmd7 += [
                         '--num-threads=4',
+                        '--binary=false',
                         inModel,
                         accfile.name,
                         estfile.name,
@@ -203,8 +210,11 @@ def ivector_train(feats, fubm, ivector_extractor, num_gselect=20,
 
     shutil.copyfile(inModel, ivector_extractor)
     os.unlink(inModel)
-
-    return ivector_extractor # ToDo: covert to the string
+    os.unlink(fubmfile.name)
+    
+    with open(ivector_extractor) as fp:
+        ietxt = fp.read()
+        return ietxt
 
 
 def ivector_extract(feats, fubm, ivector_extractor, num_gselect=20,
@@ -216,9 +226,9 @@ def ivector_extract(feats, fubm, ivector_extractor, num_gselect=20,
     feats : numpy.ndarray
         A 2D numpy ndarray object containing MFCCs.
     fubm : str
-        A path to full-diagonal UBM file
+        A full-diagonal UBM
     ivector_extractor : str
-        A path to global GMM file.
+        An ivector extractor model
     num_gselect : :obj:`int`, optional
         Number of Gaussians to keep per frame.
     min_post : :obj:`float`, optional
@@ -244,12 +254,24 @@ def ivector_extract(feats, fubm, ivector_extractor, num_gselect=20,
     # ivector-extract --verbose=2 $srcdir/final.ie "$feats" ark,s,cs:- \
     # ark,scp,t:$dir/ivector.JOB.ark,$dir/ivector.JOB.scp || exit 1;
 
+    # Convert full diagonal UBM string to a file
+    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix='.fump') as fubmfile:
+        with open(fubmfile.name, 'wt') as fp:
+            fp.write(fubm)
+    
+    # Convert IvectorExtractor string to a file
+    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix='.ie') as iefile:
+        with open(iefile.name, 'wt') as fp:
+            fp.write(ivector_extractor)
+
     # Initialize the i-vector extractor using the FGMM input
     cmd1 = [binary1] # fgmm-global-to-gmm
     with tempfile.NamedTemporaryFile(delete=False, suffix='.dubm') as \
     dubmfile, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
         cmd1 += [
-            fubm,
+            fubmfile.name,
             dubmfile.name,
         ]
         pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
@@ -278,7 +300,7 @@ def ivector_extract(feats, fubm, ivector_extractor, num_gselect=20,
         cmd2 = [binary3] # fgmm-global-gselect-to-post
         cmd2 += [
             '--min-post=' + str(min_post),
-            fubm,
+            fubmfile.name,
             'ark:-',
             'ark,s,cs:' + gselfile.name,
             'ark:-',
@@ -303,7 +325,7 @@ def ivector_extract(feats, fubm, ivector_extractor, num_gselect=20,
 
         cmd4 = [binary5] # ivector-extract
         cmd4 += [
-            ivector_extractor,
+            iefile.name,
             'ark:-',
             'ark,s,cs:' + postfile.name,
             'ark:-',
@@ -320,10 +342,14 @@ def ivector_extract(feats, fubm, ivector_extractor, num_gselect=20,
             # read ark from pipe1.stdout
             ret = [mat for name, mat in io.read_vec_flt_ark(
                 pipe4.stdout)][0]
+
+            os.unlink(fubmfile.name)
+            os.unlink(iefile.name)
+            
             return ret
 
 
-def plda_train(feats, enroller_file):
+def plda_train(feats, plda_file, mean_file):
     """Implements Kaldi egs/sre10/v1/plda_scoring.sh
 
     Parameters
@@ -332,13 +358,16 @@ def plda_train(feats, enroller_file):
     feats : numpy.ndarray
         A 2D numpy ndarray object containing MFCCs.
 
-    enroller_file : str
-        A path to adapted GMM file
+    plda_file : str
+        A path to the trained PLDA model
+
+    mean_file : str
+        A path to the global PLDA mean file
 
     Returns
     -------
     str
-        A path to trained PLDA model.
+        Trained PLDA model and global mean (2D str array)
 
     """
 # ivector-compute-plda ark:$plda_data_dir/spk2utt \
@@ -349,6 +378,7 @@ def plda_train(feats, enroller_file):
     binary2 = 'ivector-compute-plda'
     binary3 = 'ivector-mean'
 
+    ret = []
     logger.debug("-> PLDA calculation")
     # 1. Create Kaldi training data structure
     # import ipdb; ipdb.set_trace()
@@ -382,6 +412,7 @@ def plda_train(feats, enroller_file):
     with tempfile.NamedTemporaryFile(suffix='.plda') as pldafile, \
         tempfile.NamedTemporaryFile(suffix='.log') as logfile:
         cmd2 += [
+            '--binary=false',
             'ark,t:' + spkfile.name,
             'ark:-',
             pldafile.name,
@@ -394,7 +425,11 @@ def plda_train(feats, enroller_file):
             logtxt = fp.read()
             logger.debug("%s", logtxt)
 
-        shutil.copyfile(pldafile.name, enroller_file + '.plda')
+        shutil.copyfile(pldafile.name, plda_file)
+
+        with open(plda_file) as fp:
+            pldatxt = fp.read()
+            ret.append(pldatxt)
 
     # compute global mean
     # ivector-normalize-length scp:${plda_ivec_dir}/ivector.scp \
@@ -415,30 +450,34 @@ def plda_train(feats, enroller_file):
             logtxt = fp.read()
             logger.debug("%s", logtxt)
 
-        shutil.copyfile(meanfile.name, enroller_file + '.plda.mean')
+        shutil.copyfile(meanfile.name, mean_file)
 
+        with open(mean_file) as fp:
+            pldameantxt = fp.read()
+            ret.append(pldameantxt)
+        
     os.unlink(spkfile.name)
     os.unlink(arkfile.name)
 
-    return enroller_file + '.plda'
+    return ret
 
 
-def plda_enroll(feats, enroller_file):
+def plda_enroll(feats, pldamean):
     """Implements Kaldi egs/sre10/v1/plda_scoring.sh
 
     Parameters
     ----------
 
     feats : numpy.ndarray
-        A 2D numpy ndarray object containing iVectors.
+        A 2D numpy ndarray object containing iVectors (of a single speaker).
 
-    enroller_file : str
-        A path to enrolled/adapted GMM file.
+    pldamean : str
+        A path to the global PLDA mean file
 
     Returns
     -------
     str
-        A path to enrolled PLDA model.
+        A path to enrolled PLDA model (average iVectors).
 
     """
 
@@ -447,7 +486,13 @@ def plda_enroll(feats, enroller_file):
     binary3 = 'ivector-normalize-length'
     binary4 = 'ivector-subtract-global-mean'
     binary5 = 'ivector-normalize-length'
-    
+
+    # Convert full diagonal UBM string to a file
+    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix='.mean') as meanfile:
+        with open(meanfile.name, 'wt') as fp:
+            fp.write(pldamean)
+                
     # ivector-normalize-length scp:$dir/ivector.scp  ark:- \| \
     # ivector-mean ark:$data/spk2utt ark:- ark:- ark,t:$dir/num_utts.ark \| \
     # ivector-normalize-length ark:-
@@ -460,18 +505,17 @@ def plda_enroll(feats, enroller_file):
         tempfile.NamedTemporaryFile(
                 delete=False, suffix='.ark') as arkfile, \
         open(arkfile.name, 'wb') as f:
-            i = 0
-            j = 0
-            spkid = 'spk' + str(i)
-            spkfile.write(spkid)
-            for utt in feats:
-                # print i, j
-                spkutt = spkid + 'utt' + str(j)
-                io.write_vec_flt(f, utt, key=spkutt.encode('utf-8'))
-                spkfile.write(' ' + spkutt)
-                j += 1
-            spkfile.write("\n")
-            i += 1
+
+        # features for a single speaker (said 'spk0')
+        j = 0
+        spkid = 'spk0'
+        spkfile.write(spkid)
+        for utt in feats:
+            spkutt = spkid + 'utt' + str(j)
+            io.write_vec_flt(f, utt, key=spkutt.encode('utf-8'))
+            spkfile.write(' ' + spkutt)
+            j += 1
+        spkfile.write("\n")
 
     cmd1 = [binary1] # ivector-normalize-length
     cmd1 += [
@@ -491,7 +535,7 @@ def plda_enroll(feats, enroller_file):
     ]
     cmd4 = [binary4] # ivector-subtract-global-mean
     cmd4 += [
-        enroller_file + '.plda.mean',
+        meanfile.name,
         'ark:-',
         'ark:-',
     ]
@@ -502,7 +546,7 @@ def plda_enroll(feats, enroller_file):
         
         cmd5 += [
             'ark:-',
-            'ark:' + spkarkfile.name,
+            'ark,t:' + spkarkfile.name,
         ]
 
         pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
@@ -516,17 +560,23 @@ def plda_enroll(feats, enroller_file):
                       stdout=PIPE, stderr=logfile)
         pipe5.communicate()
         logger.debug("PLDA enrollment DONE ->")
-        # with open(logfile.name) as fp:
-        #   logtxt = fp.read()
-        #   logger.debug("%s", logtxt)
-
+        with open(logfile.name) as fp:
+          logtxt = fp.read()
+          logger.debug("%s", logtxt)
+        
+        # get text format
+        with open(spkarkfile.name) as fp:
+            ivectortxt = fp.read()
+            ret = ivectortxt
+            
     os.unlink(spkfile.name)
     os.unlink(arkfile.name)
+    os.unlink(meanfile.name)
 
-    return spkarkfile.name
+    return ret
 
 
-def plda_score(feats, model, ubm):
+def plda_score(feats, model, plda, globalmean, smoothing=0):
     """Implements Kaldi egs/sre10/v1/plda_scoring.sh
 
     Parameters
@@ -535,14 +585,20 @@ def plda_score(feats, model, ubm):
         A 2D numpy ndarray object containing iVectors.
 
     model : str
-        A path to enrolled/adapted PLDA model.
-    ubm : str
-        A path to the PLDA model.
+        A speaker model (average iVectors).
+    plda : str
+        A PLDA model.
+    globalmean : str
+        A global PLDA mean.
+    smoothing: float
+        Factor used in smoothing within-class covariance
+        (add this factor times between-class covar).
+
 
     Returns
     -------
     float
-        A score.
+        A PLDA score.
     """
     # import ipdb; ipdb.set_trace()
     # ivector-plda-scoring --normalize-length=true \
@@ -557,6 +613,25 @@ def plda_score(feats, model, ubm):
     # "cat '$trials' | cut -d\  --fields=1,2 |" $scores_dir/plda_scores || \
     # exit 1;
 
+
+    # Convert to a file
+    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix='.spk') as spkfile:
+        with open(spkfile.name, 'wt') as fp:
+            fp.write(model)
+    
+    # Convert to a file
+    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix='.ubm') as pldafile:
+        with open(pldafile.name, 'wt') as fp:
+            fp.write(plda)
+            
+    # Convert to a file
+    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix='.mean') as meanfile:
+        with open(meanfile.name, 'wt') as fp:
+            fp.write(globalmean)
+            
     logger.debug("-> PLDA scoring")
     # 1.
 
@@ -577,7 +652,7 @@ def plda_score(feats, model, ubm):
 
     cmd2 = [binary3] # ivector-subtract-global-mean
     cmd2 += [
-        ubm + '.plda.mean',
+        meanfile.name,
         'ark:-',
         'ark:-',
     ]
@@ -597,11 +672,11 @@ def plda_score(feats, model, ubm):
 
     # plda smooting
     with tempfile.NamedTemporaryFile(delete=False, suffix='.plda') as \
-        plda, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+        pldasmooth, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
         cmd1 += [
-            '--smoothing=0.0',
-            ubm + '.plda',
-            plda.name,
+            '--smoothing='+str(smoothing),
+            pldafile.name,
+            pldasmooth.name,
         ]
         pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
         pipe1.communicate()
@@ -613,8 +688,8 @@ def plda_score(feats, model, ubm):
         score, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
         cmd4 += [
             '--normalize-length=true',
-            plda.name,
-            'ark:' + model,
+            pldasmooth.name,
+            'ark:' + spkfile.name,
             'ark:-',
             trials.name,
             score.name,
@@ -634,10 +709,17 @@ def plda_score(feats, model, ubm):
 
         with open(score.name) as fp:
             scoretxt = fp.readline()
-            ret = float(scoretxt.split()[2])
+            if scoretxt.split():
+                ret = float(scoretxt.split()[2])
+            else:
+                ret = -1
 
-    os.unlink(plda.name)
+    os.unlink(pldasmooth.name)
     os.unlink(trials.name)
     os.unlink(score.name)
 
+    os.unlink(spkfile.name)
+    os.unlink(pldafile.name)
+    os.unlink(meanfile.name)
+              
     return ret

@@ -22,3 +22,4 @@
 .. _zc.buildout: http://pypi.python.org/pypi/zc.buildout/
 .. _mr.developer: http://pypi.python.org/pypi/mr.developer/
 .. _kaldi: http://kaldi-asr.org/
+.. _sre10: https://github.com/kaldi-asr/kaldi/tree/master/egs/sre10/v1
