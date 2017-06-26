@@ -33,7 +33,9 @@ def test_ivector_train():
     fubm = bob.kaldi.ubm_full_train(array, dubm, temp_fubm_file,
                                num_gselect=2, num_iters=2)
     # Train small ivector extractor
-    ivector = bob.kaldi.ivector_train(array, fubm, temp_ivec_file,
+    feats=[[]]
+    feats[0]=array
+    ivector = bob.kaldi.ivector_train(feats, fubm, temp_ivec_file,
                                num_gselect=2, ivector_dim=20, num_iters=2)
 
     assert ivector.find('IvectorExtractor')
@@ -59,7 +61,9 @@ def test_ivector_extract():
     fubm = bob.kaldi.ubm_full_train(array, dubm, temp_fubm_file,
                                    num_gselect=2, num_iters=2)
     # Train small ivector extractor
-    ivector = bob.kaldi.ivector_train(array, fubm, temp_ivec_file,
+    feats=[[]]
+    feats[0]=array
+    ivector = bob.kaldi.ivector_train(feats, fubm, temp_ivec_file,
                                num_gselect=2, ivector_dim=20, num_iters=2)
     # Extract ivector
     ivector_array = bob.kaldi.ivector_extract(array, fubm, ivector,

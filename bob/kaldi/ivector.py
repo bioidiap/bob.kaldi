@@ -73,12 +73,9 @@ def ivector_train(feats, fubm, ivector_extractor, num_gselect=20,
     # ToDo: implement Bob's function for that
     with tempfile.NamedTemporaryFile(delete=False, suffix='.ark') as arkfile:
         with open(arkfile.name, 'wb') as f:
-            if feats.ndim == 3:
-                for i, utt in enumerate(feats):
-                    uttid = 'utt' + str(i)
-                    io.write_mat(f, utt, key=uttid.encode('utf-8'))
-            else:
-                io.write_mat(f, feats, key=b'utt0')
+            for i, utt in enumerate(feats):
+                uttid = 'utt' + str(i)
+                io.write_mat(f, utt, key=uttid.encode('utf-8'))
 
     # Initialize the i-vector extractor using the FGMM input
     cmd1 = [binary1] # fgmm-global-to-gmm
