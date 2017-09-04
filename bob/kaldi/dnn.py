@@ -144,8 +144,8 @@ def compute_dnn_vad(samples, rate, silence_threshold=0.9, posterior=0):
     vad = []
     for row in post:
         if row[posterior] > silence_threshold:
-            vad.append(1.0)
-        else:
             vad.append(0.0)
+        else:
+            vad.append(1.0)
 
     return vad
