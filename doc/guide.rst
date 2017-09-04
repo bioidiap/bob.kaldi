@@ -9,6 +9,42 @@
    import tempfile
    import numpy
 
+
+================================
+ Voice Activity Detection (VAD)
+================================
+
+Energy-based
+------------
+
+A simple energy-based VAD is implemented in :py:func:`bob.kaldi.compute_vad`.
+The function expects the speech samples as :obj:`numpy.ndarray` and the sampling
+rate as :obj:`float`, and returns an array of VAD labels :obj:`numpy.ndarray`
+with the labels of 0 (zero) or 1 (one) per speech frame:
+
+.. doctest::
+
+   >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
+   >>> data = bob.io.audio.reader(sample)
+   >>> VAD_labels = bob.kaldi.compute_vad(data.load()[0], data.rate)
+   >>> print (len(VAD_labels))
+   317
+
+DNN-based
+---------
+
+A Deep Neural Network (DNN), frame-based, VAD is implemented in
+:py:func:`bob.kaldi.compute_dnn_vad`. Pre-trained DNN on AMI_ database
+with headset microphone recordings is used for forward pass of mfcc
+features. The VAD decision is computed by comparing the silence
+posterior feature with the silence threshold.
+
+.. doctest::
+
+   >>> DNN_VAD_labels = bob.kaldi.compute_dnn_vad(data.load()[0], data.rate)
+   >>> print (len(DNN_VAD_labels))
+   317
+
 ================================
  Speaker recognition evaluation
 ================================
@@ -25,8 +61,6 @@ the filename as :obj:`str`:
 
    .. doctest::
 
-      >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
-      >>> data = bob.io.audio.reader(sample)
       >>> feat = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=False)
       >>> print (feat.shape)
       (317, 39)
@@ -38,21 +72,6 @@ the filename as :obj:`str`:
       >>> feat = bob.kaldi.mfcc_from_path(sample)
       >>> print (feat.shape)
       (317, 39)
-
-Voice Activity Detection (VAD)
-------------------------------
-
-A simple energy-based VAD is implemented in :py:func:`bob.kaldi.compute_vad`.
-The function expects the speech samples as :obj:`numpy.ndarray` and the sampling
-rate as :obj:`float`, and returns an array of VAD labels :obj:`numpy.ndarray`
-with the labels of 0 (zero) or 1 (one) per speech frame:
-
-.. doctest::
-
-   >>> VAD_labels = bob.kaldi.compute_vad(data.load()[0], data.rate)
-   >>> print (len(VAD_labels))
-   317
-
 
 UBM training and evaluation
 ---------------------------
@@ -100,5 +119,35 @@ training, and PLDA scoring.
   >>> print ('%.4f' % score)
   -23.9922
 
+======================
+ Deep Neural Networks
+======================
+
+Forward pass
+------------
+
+A forward-pass with pre-trained DNN is implemented in
+:py:func:`bob.kaldi.nnet_forward`. Output posterior features are
+returned as :obj:`numpy.ndarray`. First output features of each row (a
+processed speech frame) contain posteriors of silence, laughter
+and noise, indexed 0, 1 and 2, respectively. These posteriors are thus
+used for silence detection in :py:func:`bob.kaldi.compute_dnn_vad`,
+but might be used also for the laughter and noise detection as well.
+
+.. doctest::	     
+	     
+    >>> nnetfile   = pkg_resources.resource_filename('bob.kaldi', 'test/dnn/ami.nnet.txt')
+    >>> transfile = pkg_resources.resource_filename('bob.kaldi', 'test/dnn/ami.feature_transform.txt')
+    >>> feats = bob.kaldi.cepstral(data.load()[0], 'mfcc', data.rate, normalization=False)
+    >>> nnetf = open(nnetfile)
+    >>> trnf = open(transfile)
+    >>> dnn = nnetf.read()
+    >>> trn = trnf.read()
+    >>> nnetf.close()
+    >>> trnf.close()
+    >>> ours = bob.kaldi.nnet_forward(feats, dnn, trn)
+    >>> print (ours.shape)
+    (317, 43)
 
 .. include:: links.rst
+    

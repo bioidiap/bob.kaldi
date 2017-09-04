@@ -23,3 +23,4 @@
 .. _mr.developer: http://pypi.python.org/pypi/mr.developer/
 .. _kaldi: http://kaldi-asr.org/
 .. _sre10: https://github.com/kaldi-asr/kaldi/tree/master/egs/sre10/v1
+.. _ami: http://groups.inf.ed.ac.uk/ami

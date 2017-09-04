@@ -54,3 +54,38 @@ def test_compute_vad():
     theirs = np.loadtxt(reference)
 
     assert np.allclose(ours, theirs)
+
+    
+
+def test_cepstral_mfcc():
+
+    sample = pkg_resources.resource_filename(__name__, 'data/sample16k.wav')
+    reference = pkg_resources.resource_filename(
+        __name__, 'data/sample16k-cepstral-mfcc.txt')
+
+    data = bob.io.audio.reader(sample)
+
+    ours = bob.kaldi.cepstral(data.load()[0], 'mfcc', data.rate,
+           normalization=False)
+    theirs = np.loadtxt(reference)
+
+    assert ours.shape == theirs.shape
+
+    assert np.allclose(ours, theirs, 1e-03, 1e-04)
+
+def test_cepstral_plp():
+
+    sample = pkg_resources.resource_filename(__name__, 'data/sample16k.wav')
+    reference = pkg_resources.resource_filename(
+        __name__, 'data/sample16k-cepstral-plp.txt')
+
+    data = bob.io.audio.reader(sample)
+
+    ours = bob.kaldi.cepstral(data.load()[0], 'plp', data.rate,
+                              normalization=False)
+    theirs = np.loadtxt(reference)
+
+    assert ours.shape == theirs.shape
+
+    assert np.allclose(ours, theirs, 1e-03, 1e-04)
+    
