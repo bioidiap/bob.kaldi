@@ -6,10 +6,10 @@
    :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/stable/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.svg
    :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/v1.0.6/build.svg
-   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/v1.0.6
-.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/v1.0.6/coverage.svg
-   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/v1.0.6
+.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/build.svg
+   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/master
+.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/coverage.svg
+   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/master
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.kaldi
 .. image:: http://img.shields.io/pypi/v/bob.kaldi.svg
