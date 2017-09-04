@@ -71,7 +71,7 @@ def test_cepstral_mfcc():
 
     assert ours.shape == theirs.shape
 
-    assert np.allclose(ours, theirs, 1e-03, 1e-05)
+    assert np.allclose(ours, theirs, 1e-03, 1e-04)
 
 def test_cepstral_plp():
 
@@ -87,5 +87,5 @@ def test_cepstral_plp():
 
     assert ours.shape == theirs.shape
 
-    assert np.allclose(ours, theirs, 1e-03, 1e-05)
+    assert np.allclose(ours, theirs, 1e-03, 1e-04)
     
