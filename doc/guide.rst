@@ -149,5 +149,66 @@ but might be used also for the laughter and noise detection as well.
     >>> print (ours.shape)
     (317, 43)
 
+===================
+Speech recognition
+===================
+
+Speech recognition is a processes that generates a text transcript
+given speech audio. Most of current Automatic Speech Recognition 
+(ASR) systems use the following pipeline: 
+
+.. image:: img/ASR.png
+
+The ASR system has to be first trained. More specifically, its key
+statistical models:
+
+* Pronunciation model, the lexicon, that associates written and spoken
+  form of words. The lexicon contains words :math:`W` and defines them
+  as sequences of phonemes (the speech sounds) :math:`Q`.
+* Acoustic model, GMMs or DNNs, that associates the speech features
+  :math:`O` and the spoken words :math:`Q`.
+* Language model, usually n-gram model, that captures most probably
+  sequences of :math:`W` of a particular language.
+
+The transcript of the input audio waveform :math:`X` is then generated
+by transformation of :math:`X` to features :math:`O` (for example
+ceptral features computed by :py:func:`bob.kaldi.cepstral`), and an
+ASR decoder that outputs the most probable transcript :math:`W^*`
+using the pre-trained statistical models.
+
+Acoustic models
+---------------
+
+The basic acoustic model is called monophone model, where :math:`Q`
+consists just of the phonemes, and consider them contextually
+independent. The training of such model has following pipeline:
+
+* Model initialization for a given Hidden Markov Model (HMM)
+  structure, usually 3-state left-to-right model.
+* Compiling training graphs that compiles Finite State Transducers
+  (FSTs), one for each train utterance. This requires the lexicon, and
+  the word transcription of the training data.
+* First alignment and update stage that produces a transition-model
+  and GMM objects for equally spaced alignments.
+* Iterative alignment and update stage.
+
+  
+.. doctest::     
+
+    >>> fstfile   = pkg_resources.resource_filename('bob.kaldi', 'test/hmm/L.fst')
+    >>> topofile = pkg_resources.resource_filename('bob.kaldi', 'test/hmm/topo.txt')
+    >>> phfile = pkg_resources.resource_filename('bob.kaldi', 'test/hmm/sets.txt')
+    >>> # word labels
+    >>> uttid='test'
+    >>> labels = uttid + ' 27312 27312 27312'
+    >>> train_set={}
+    >>> train_set[uttid]=feats
+    >>> topof = open(topofile)
+    >>> topo = topof.read()
+    >>> topof.close()
+    >>> model = bob.kaldi.train_mono(train_set, labels, fstfile, topo, phfile , numgauss=2, num_iters=2)
+    >>> print (model.find('TransitionModel'))
+    1 
+   
 .. include:: links.rst
     
