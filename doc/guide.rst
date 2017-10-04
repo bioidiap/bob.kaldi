@@ -209,6 +209,24 @@ independent. The training of such model has following pipeline:
     >>> model = bob.kaldi.train_mono(train_set, labels, fstfile, topo, phfile , numgauss=2, num_iters=2)
     >>> print (model.find('TransitionModel'))
     1 
-   
+
+Phone frame decoding
+--------------------
+
+Simple frame decoding can by done by finding the indices of the
+maximum values along the frame axis. The following example performs
+a forward pass with pre-trained phone DNN, and finds :math:`argmax()`
+of the output posterior features. Looking at the DNN labels, the
+phones are decoded per frame.
+
+.. doctest::
+
+    >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/librivox.wav')
+    >>> data = bob.io.audio.reader(sample)
+    >>> post, labs = bob.kaldi.compute_dnn_phone(data.load()[0], data.rate)
+    >>> mdecoding = numpy.argmax(post,axis=1) # max decoding
+    >>> print (labs[mdecoding[250]]) # the last spoken sound of sample is N (of the word DOMAIN)
+    N
+
 .. include:: links.rst
     

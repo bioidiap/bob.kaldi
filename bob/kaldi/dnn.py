@@ -149,3 +149,43 @@ def compute_dnn_vad(samples, rate, silence_threshold=0.9, posterior=0):
             vad.append(1.0)
 
     return vad
+
+def compute_dnn_phone(samples, rate):
+    """Computes phone posteriors on a Kaldi feature matrix
+
+    Parameters
+    ----------
+    feats : numpy.ndarray
+        A 2-D numpy array, with log-energy being in the first
+        component of each feature vector
+    rate : float
+        The sampling rate of the input signal in ``samples``.
+
+    Returns
+    -------
+    numpy.ndarray
+        The phone posteriors and labels.
+    """
+
+    nnetfile   = pkg_resources.resource_filename(__name__,
+    'test/dnn/ami.nnet.txt')
+    transfile = pkg_resources.resource_filename(__name__,
+    'test/dnn/ami.feature_transform.txt')
+    labfile = pkg_resources.resource_filename(__name__,
+    'test/dnn/ami.phones.txt')
+
+    feats = bob.kaldi.cepstral(samples, 'mfcc', rate,
+    normalization=False)
+
+    with open(nnetfile) as nnetf, \
+        open(transfile) as trnf:
+        dnn = nnetf.read()
+        trn = trnf.read()
+        post = bob.kaldi.nnet_forward(feats, dnn, trn)
+
+    labels = a=np.genfromtxt(labfile, dtype='str', skip_header=1)
+    lab = []
+    for l in labels:
+        lab.append(l[0])
+
+    return [post, lab]
