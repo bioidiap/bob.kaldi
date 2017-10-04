@@ -14,6 +14,7 @@ from .ivector import plda_enroll
 from .ivector import plda_score
 from .dnn import nnet_forward
 from .dnn import compute_dnn_vad
+from .dnn import compute_dnn_phone
 from .hmm import train_mono
 
 def get_config():

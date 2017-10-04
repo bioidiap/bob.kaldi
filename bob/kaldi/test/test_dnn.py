@@ -52,5 +52,15 @@ def test_compute_dnn_vad():
 
     assert np.allclose(ours, theirs)
 
-    
-    
+def test_compute_dnn_phone():
+
+    sample = pkg_resources.resource_filename(__name__, 'data/librivox.wav')
+
+    data = bob.io.audio.reader(sample)
+
+    post, labs = bob.kaldi.compute_dnn_phone(data.load()[0], data.rate)
+
+    mdecoding=np.argmax(post,axis=1) # max decoding
+
+    # check if the last spoken sound at frame 250 is 'N' (word DOMAIN)
+    assert(labs[mdecoding[250]]=='N')
