@@ -192,11 +192,11 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
         with open(logfile.name) as fp:
             logtxt = fp.read()
             logger.debug("%s", logtxt)
+        shutil.copyfile(txtfile.name, ubmname)
         with open(txtfile.name, 'rt') as f:
             ubmtxt = f.read()
             ret = ubmtxt
 
-    shutil.copyfile(estfile.name, ubmname)
     os.unlink(estfile.name)
     os.unlink(gselfile.name)
             
