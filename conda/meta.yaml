@@ -23,6 +23,7 @@ requirements:
     - bob.extension
     - numpy {{ numpy }}
     - scipy {{ scipy }}
+    - kaldi {{ kaldi }}
     - bob.io.audio
   run:
     - python
