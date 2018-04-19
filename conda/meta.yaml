@@ -30,6 +30,7 @@ requirements:
     - setuptools
     - numpy
     - scipy
+    - kaldi
 
 test:
   imports:
