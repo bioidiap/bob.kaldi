@@ -23,14 +23,13 @@ requirements:
     - bob.extension
     - numpy {{ numpy }}
     - scipy {{ scipy }}
-    - kaldi {{ kaldi }}
+    - kaldi=r7271.1a4dbf6=h6bb2d05_2 {{ kaldi }}
     - bob.io.audio
   run:
     - python
     - setuptools
     - numpy
     - scipy
-    - kaldi
 
 test:
   imports:
