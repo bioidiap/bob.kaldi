@@ -26,7 +26,7 @@ with the labels of 0 (zero) or 1 (one) per speech frame:
 
    >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
    >>> data = bob.io.audio.reader(sample)
-   >>> VAD_labels = bob.kaldi.compute_vad(data.load()[0], data.rate)
+   >>> VAD_labels = bob.kaldi.compute_vad(data.load()[0], data.rate) #doctest: +SKIP
    >>> print (len(VAD_labels))
    317
 
@@ -41,7 +41,7 @@ posterior feature with the silence threshold.
 
 .. doctest::
 
-   >>> DNN_VAD_labels = bob.kaldi.compute_dnn_vad(data.load()[0], data.rate)
+   >>> DNN_VAD_labels = bob.kaldi.compute_dnn_vad(data.load()[0], data.rate) #doctest: +SKIP
    >>> print (len(DNN_VAD_labels))
    317
 
@@ -61,7 +61,7 @@ the filename as :obj:`str`:
 
    .. doctest::
 
-      >>> feat = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=False)
+      >>> feat = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=False) #doctest: +SKIP
       >>> print (feat.shape)
       (317, 39)
 
@@ -69,7 +69,7 @@ the filename as :obj:`str`:
 
    .. doctest::
 
-      >>> feat = bob.kaldi.mfcc_from_path(sample)
+      >>> feat = bob.kaldi.mfcc_from_path(sample)  #doctest: +SKIP
       >>> print (feat.shape)
       (317, 39)
 
@@ -84,13 +84,13 @@ are supported, speakers can be enrolled and scored:
   >>> # Train small diagonall GMM
   >>> diag_gmm_file = tempfile.NamedTemporaryFile()
   >>> full_gmm_file = tempfile.NamedTemporaryFile()
-  >>> dubm = bob.kaldi.ubm_train(feat, diag_gmm_file.name, num_gauss=2, num_gselect=2, num_iters=2)
+  >>> dubm = bob.kaldi.ubm_train(feat, diag_gmm_file.name, num_gauss=2, num_gselect=2, num_iters=2) #doctest: +SKIP
   >>> # Train small full GMM
-  >>> ubm = bob.kaldi.ubm_full_train(feat, dubm, full_gmm_file.name, num_gselect=2, num_iters=2)
+  >>> ubm = bob.kaldi.ubm_full_train(feat, dubm, full_gmm_file.name, num_gselect=2, num_iters=2) #doctest: +SKIP
   >>> # Enrollement - MAP adaptation of the UBM-GMM
-  >>> spk_model = bob.kaldi.ubm_enroll(feat, dubm)
+  >>> spk_model = bob.kaldi.ubm_enroll(feat, dubm)  #doctest: +SKIP
   >>> # GMM scoring
-  >>> score = bob.kaldi.gmm_score(feat, spk_model, dubm)
+  >>> score = bob.kaldi.gmm_score(feat, spk_model, dubm)  #doctest: +SKIP
   >>> print ('%.3f' % score)
   0.282
 
@@ -111,11 +111,11 @@ training, and PLDA scoring.
   >>> train_feats = numpy.load(features)
   >>> test_feats = numpy.loadtxt(test_file)
   >>> # Train PLDA model; plda[0] - PLDA model, plda[1] - global mean
-  >>> plda = bob.kaldi.plda_train(train_feats, plda_file.name, mean_file.name)
+  >>> plda = bob.kaldi.plda_train(train_feats, plda_file.name, mean_file.name)  #doctest: +SKIP
   >>> # Speaker enrollment (calculate average iVectors for the first speaker)
-  >>> enrolled = bob.kaldi.plda_enroll(train_feats[0], plda[1])
+  >>> enrolled = bob.kaldi.plda_enroll(train_feats[0], plda[1]) #doctest: +SKIP
   >>> # Calculate PLDA score
-  >>> score = bob.kaldi.plda_score(test_feats, enrolled, plda[0], plda[1])
+  >>> score = bob.kaldi.plda_score(test_feats, enrolled, plda[0], plda[1]) #doctest: +SKIP
   >>> print ('%.4f' % score)
   -23.9922
 
@@ -138,14 +138,14 @@ but might be used also for the laughter and noise detection as well.
 	     
     >>> nnetfile   = pkg_resources.resource_filename('bob.kaldi', 'test/dnn/ami.nnet.txt')
     >>> transfile = pkg_resources.resource_filename('bob.kaldi', 'test/dnn/ami.feature_transform.txt')
-    >>> feats = bob.kaldi.cepstral(data.load()[0], 'mfcc', data.rate, normalization=False)
+    >>> feats = bob.kaldi.cepstral(data.load()[0], 'mfcc', data.rate, normalization=False)  #doctest: +SKIP
     >>> nnetf = open(nnetfile)
     >>> trnf = open(transfile)
     >>> dnn = nnetf.read()
     >>> trn = trnf.read()
     >>> nnetf.close()
     >>> trnf.close()
-    >>> ours = bob.kaldi.nnet_forward(feats, dnn, trn)
+    >>> ours = bob.kaldi.nnet_forward(feats, dnn, trn) #doctest: +SKIP
     >>> print (ours.shape)
     (317, 43)
 
@@ -206,7 +206,7 @@ independent. The training of such model has following pipeline:
     >>> topof = open(topofile)
     >>> topo = topof.read()
     >>> topof.close()
-    >>> model = bob.kaldi.train_mono(train_set, labels, fstfile, topo, phfile , numgauss=2, num_iters=2)
+    >>> model = bob.kaldi.train_mono(train_set, labels, fstfile, topo, phfile , numgauss=2, num_iters=2)  #doctest: +SKIP
     >>> print (model.find('TransitionModel'))
     1 
 
@@ -223,7 +223,7 @@ phones are decoded per frame.
 
     >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/librivox.wav')
     >>> data = bob.io.audio.reader(sample)
-    >>> post, labs = bob.kaldi.compute_dnn_phone(data.load()[0], data.rate)
+    >>> post, labs = bob.kaldi.compute_dnn_phone(data.load()[0], data.rate)  #doctest: +SKIP
     >>> mdecoding = numpy.argmax(post,axis=1) # max decoding
     >>> print (labs[mdecoding[250]]) # the last spoken sound of sample is N (of the word DOMAIN)
     N
