@@ -1,5 +1,15 @@
 .. py:currentmodule:: bob.kaldi
 
+.. testsetup:: *
+
+   from __future__ import print_function
+   import pkg_resources
+   import bob.kaldi
+   import bob.io.audio
+   import tempfile
+   import numpy
+
+
 ================================
  Voice Activity Detection (VAD)
 ================================
@@ -12,11 +22,12 @@ The function expects the speech samples as :obj:`numpy.ndarray` and the sampling
 rate as :obj:`float`, and returns an array of VAD labels :obj:`numpy.ndarray`
 with the labels of 0 (zero) or 1 (one) per speech frame:
 
-.. code-block:: python
+.. doctest::
 
    >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
    >>> data = bob.io.audio.reader(sample)
-   >>> VAD_labels = bob.kaldi.compute_vad(data.load()[0], data.rate)
+   >>> VAD_labels = bob.kaldi.compute_vad(data.load()[0], data.rate) # doctest: +ELLIPSIS
+   compute...
    >>> print (len(VAD_labels))
    317
 
@@ -29,9 +40,10 @@ with headset microphone recordings is used for forward pass of mfcc
 features. The VAD decision is computed by comparing the silence
 posterior feature with the silence threshold.
 
-.. code-block:: python
+.. doctest::
 
-   >>> DNN_VAD_labels = bob.kaldi.compute_dnn_vad(data.load()[0], data.rate)
+   >>> DNN_VAD_labels = bob.kaldi.compute_dnn_vad(data.load()[0], data.rate) # doctest: +ELLIPSIS
+   nnet...
    >>> print (len(DNN_VAD_labels))
    317
 
@@ -49,7 +61,7 @@ the filename as :obj:`str`:
 
 1. :py:func:`bob.kaldi.mfcc`
 
-   .. code-block:: python
+   .. doctest::
 
       >>> feat = bob.kaldi.mfcc(data.load()[0], data.rate, normalization=False)
       >>> print (feat.shape)
@@ -57,7 +69,7 @@ the filename as :obj:`str`:
 
 2. :py:func:`bob.kaldi.mfcc_from_path`
 
-   .. code-block:: python
+   .. doctest::
 
       >>> feat = bob.kaldi.mfcc_from_path(sample)
       >>> print (feat.shape)
@@ -69,18 +81,22 @@ UBM training and evaluation
 Both diagonal and full covariance Universal Background Models (UBMs)
 are supported, speakers can be enrolled and scored:
 
-.. code-block:: python
+.. doctest::
 
   >>> # Train small diagonall GMM
   >>> diag_gmm_file = tempfile.NamedTemporaryFile()
   >>> full_gmm_file = tempfile.NamedTemporaryFile()
-  >>> dubm = bob.kaldi.ubm_train(feat, diag_gmm_file.name, num_gauss=2, num_gselect=2, num_iters=2)
+  >>> dubm = bob.kaldi.ubm_train(feat, diag_gmm_file.name, num_gauss=2, num_gselect=2, num_iters=2) # doctest: +ELLIPSIS
+  gmm...
   >>> # Train small full GMM
-  >>> ubm = bob.kaldi.ubm_full_train(feat, dubm, full_gmm_file.name, num_gselect=2, num_iters=2)
+  >>> ubm = bob.kaldi.ubm_full_train(feat, dubm, full_gmm_file.name, num_gselect=2, num_iters=2) # doctest: +ELLIPSIS
+  gmm...
   >>> # Enrollement - MAP adaptation of the UBM-GMM
-  >>> spk_model = bob.kaldi.ubm_enroll(feat, dubm)
+  >>> spk_model = bob.kaldi.ubm_enroll(feat, dubm) # doctest: +ELLIPSIS
+  gmm...
   >>> # GMM scoring
-  >>> score = bob.kaldi.gmm_score(feat, spk_model, dubm)
+  >>> score = bob.kaldi.gmm_score(feat, spk_model, dubm) # doctest: +ELLIPSIS
+  gmm...
   >>> print ('%.3f' % score)
   0.282
 
@@ -91,7 +107,7 @@ The implementation is based on Kaldi recipe SRE10_. It includes
 ivector extrator training from full-diagonal GMMs, PLDA model
 training, and PLDA scoring.
 
-.. code-block:: python
+.. doctest::
 
   >>> plda_file = tempfile.NamedTemporaryFile()
   >>> mean_file = tempfile.NamedTemporaryFile()
@@ -101,11 +117,14 @@ training, and PLDA scoring.
   >>> train_feats = numpy.load(features)
   >>> test_feats = numpy.loadtxt(test_file)
   >>> # Train PLDA model; plda[0] - PLDA model, plda[1] - global mean
-  >>> plda = bob.kaldi.plda_train(train_feats, plda_file.name, mean_file.name)
+  >>> plda = bob.kaldi.plda_train(train_feats, plda_file.name, mean_file.name) # doctest: +ELLIPSIS
+  -> PLDA...
   >>> # Speaker enrollment (calculate average iVectors for the first speaker)
-  >>> enrolled = bob.kaldi.plda_enroll(train_feats[0], plda[1])
+  >>> enrolled = bob.kaldi.plda_enroll(train_feats[0], plda[1]) # doctest: +ELLIPSIS
+  -> PLDA...
   >>> # Calculate PLDA score
-  >>> score = bob.kaldi.plda_score(test_feats, enrolled, plda[0], plda[1])
+  >>> score = bob.kaldi.plda_score(test_feats, enrolled, plda[0], plda[1]) # doctest: +ELLIPSIS
+  -> PLDA...
   >>> print ('%.4f' % score)
   -23.9922
 
@@ -124,7 +143,7 @@ and noise, indexed 0, 1 and 2, respectively. These posteriors are thus
 used for silence detection in :py:func:`bob.kaldi.compute_dnn_vad`,
 but might be used also for the laughter and noise detection as well.
 
-.. code-block:: python	     
+.. doctest::	     
 	     
     >>> nnetfile   = pkg_resources.resource_filename('bob.kaldi', 'test/dnn/ami.nnet.txt')
     >>> transfile = pkg_resources.resource_filename('bob.kaldi', 'test/dnn/ami.feature_transform.txt')
@@ -135,7 +154,8 @@ but might be used also for the laughter and noise detection as well.
     >>> trn = trnf.read()
     >>> nnetf.close()
     >>> trnf.close()
-    >>> ours = bob.kaldi.nnet_forward(feats, dnn, trn)
+    >>> ours = bob.kaldi.nnet_forward(feats, dnn, trn) # doctest: +ELLIPSIS
+    nnet...
     >>> print (ours.shape)
     (317, 43)
 
@@ -183,7 +203,7 @@ independent. The training of such model has following pipeline:
 * Iterative alignment and update stage.
 
   
-.. code-block:: python     
+.. doctest::     
 
     >>> fstfile   = pkg_resources.resource_filename('bob.kaldi', 'test/hmm/L.fst')
     >>> topofile = pkg_resources.resource_filename('bob.kaldi', 'test/hmm/topo.txt')
@@ -196,7 +216,8 @@ independent. The training of such model has following pipeline:
     >>> topof = open(topofile)
     >>> topo = topof.read()
     >>> topof.close()
-    >>> model = bob.kaldi.train_mono(train_set, labels, fstfile, topo, phfile , numgauss=2, num_iters=2)
+    >>> model = bob.kaldi.train_mono(train_set, labels, fstfile, topo, phfile , numgauss=2, num_iters=2) # doctest: +ELLIPSIS
+    gmm...
     >>> print (model.find('TransitionModel'))
     1 
 
@@ -209,11 +230,12 @@ a forward pass with pre-trained phone DNN, and finds :math:`argmax()`
 of the output posterior features. Looking at the DNN labels, the
 phones are decoded per frame.
 
-.. code-block:: python
+.. doctest::
 
     >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/librivox.wav')
     >>> data = bob.io.audio.reader(sample)
-    >>> post, labs = bob.kaldi.compute_dnn_phone(data.load()[0], data.rate)
+    >>> post, labs = bob.kaldi.compute_dnn_phone(data.load()[0], data.rate) # doctest: +ELLIPSIS
+    nnet...
     >>> mdecoding = numpy.argmax(post,axis=1) # max decoding
     >>> print (labs[mdecoding[250]]) # the last spoken sound of sample is N (of the word DOMAIN)
     N
