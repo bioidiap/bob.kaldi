@@ -15,3 +15,4 @@ dist
 .gdb_history
 build
 .coverage
+record.txt

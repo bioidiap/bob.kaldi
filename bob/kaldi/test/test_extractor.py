@@ -25,7 +25,7 @@ def test_mfcc():
 
     assert ours.shape == theirs.shape
 
-    assert np.allclose(ours, theirs, 1e-03, 1e-05)
+    assert np.allclose(ours, theirs, 1e-02, 1e-02)
 
 
 def test_mfcc_from_path():
@@ -39,7 +39,7 @@ def test_mfcc_from_path():
 
     assert ours.shape == theirs.shape
 
-    assert np.allclose(ours, theirs, 1e-03, 1e-05)
+    assert np.allclose(ours, theirs, 1e-02, 1e-02)
 
 
 def test_compute_vad():
@@ -55,7 +55,7 @@ def test_compute_vad():
 
     assert np.allclose(ours, theirs)
 
-    
+
 
 def test_cepstral_mfcc():
 
@@ -70,8 +70,7 @@ def test_cepstral_mfcc():
     theirs = np.loadtxt(reference)
 
     assert ours.shape == theirs.shape
-
-    assert np.allclose(ours, theirs, 1e-03, 1e-04)
+    assert np.allclose(ours, theirs, 1e-02, 1e-02)
 
 def test_cepstral_plp():
 
@@ -87,5 +86,5 @@ def test_cepstral_plp():
 
     assert ours.shape == theirs.shape
 
-    assert np.allclose(ours, theirs, 1e-03, 1e-04)
-    
+    assert np.allclose(ours, theirs, 1e-02, 1e-02)
+

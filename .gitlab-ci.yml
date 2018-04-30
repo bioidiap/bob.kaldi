@@ -82,18 +82,6 @@ build_linux_36:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
 
 
-build_macosx_27:
-  <<: *macosx_build_job
-  variables:
-    PYTHON_VERSION: "2.7"
-
-
-build_macosx_36:
-  <<: *macosx_build_job
-  variables:
-    PYTHON_VERSION: "3.6"
-
-
 # Deploy targets
 .deploy_template: &deploy_job
   stage: deploy
@@ -104,8 +92,6 @@ build_macosx_36:
   dependencies:
     - build_linux_27
     - build_linux_36
-    - build_macosx_27
-    - build_macosx_36
   tags:
     - deployer
 

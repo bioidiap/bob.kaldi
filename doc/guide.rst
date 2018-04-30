@@ -26,7 +26,8 @@ with the labels of 0 (zero) or 1 (one) per speech frame:
 
    >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/sample16k.wav')
    >>> data = bob.io.audio.reader(sample)
-   >>> VAD_labels = bob.kaldi.compute_vad(data.load()[0], data.rate)
+   >>> print ("Compute VAD"); VAD_labels = bob.kaldi.compute_vad(data.load()[0], data.rate) # doctest: +ELLIPSIS
+   Compute VAD...
    >>> print (len(VAD_labels))
    317
 
@@ -41,7 +42,8 @@ posterior feature with the silence threshold.
 
 .. doctest::
 
-   >>> DNN_VAD_labels = bob.kaldi.compute_dnn_vad(data.load()[0], data.rate)
+   >>> print("Compute DNN VAD"); DNN_VAD_labels = bob.kaldi.compute_dnn_vad(data.load()[0], data.rate) # doctest: +ELLIPSIS
+   Compute DNN VAD...
    >>> print (len(DNN_VAD_labels))
    317
 
@@ -84,13 +86,15 @@ are supported, speakers can be enrolled and scored:
   >>> # Train small diagonall GMM
   >>> diag_gmm_file = tempfile.NamedTemporaryFile()
   >>> full_gmm_file = tempfile.NamedTemporaryFile()
-  >>> dubm = bob.kaldi.ubm_train(feat, diag_gmm_file.name, num_gauss=2, num_gselect=2, num_iters=2)
-  >>> # Train small full GMM
-  >>> ubm = bob.kaldi.ubm_full_train(feat, dubm, full_gmm_file.name, num_gselect=2, num_iters=2)
+  >>> print ("ubm train"); dubm = bob.kaldi.ubm_train(feat, diag_gmm_file.name, num_gauss=2, num_gselect=2, num_iters=2) # doctest: +ELLIPSIS
+  ubm train...
+  >>> print ("Train small full GMM"); ubm = bob.kaldi.ubm_full_train(feat, dubm, full_gmm_file.name, num_gselect=2, num_iters=2) # doctest: +ELLIPSIS
+  Train...
   >>> # Enrollement - MAP adaptation of the UBM-GMM
-  >>> spk_model = bob.kaldi.ubm_enroll(feat, dubm)
-  >>> # GMM scoring
-  >>> score = bob.kaldi.gmm_score(feat, spk_model, dubm)
+  >>> print ("Enrollement"); spk_model = bob.kaldi.ubm_enroll(feat, dubm) # doctest: +ELLIPSIS
+  Enrollement...
+  >>> print ("GMN scoring"); score = bob.kaldi.gmm_score(feat, spk_model, dubm) # doctest: +ELLIPSIS
+  GMN...
   >>> print ('%.3f' % score)
   0.282
 
@@ -111,11 +115,14 @@ training, and PLDA scoring.
   >>> train_feats = numpy.load(features)
   >>> test_feats = numpy.loadtxt(test_file)
   >>> # Train PLDA model; plda[0] - PLDA model, plda[1] - global mean
-  >>> plda = bob.kaldi.plda_train(train_feats, plda_file.name, mean_file.name)
+  >>> print ("Train PLDA"); plda = bob.kaldi.plda_train(train_feats, plda_file.name, mean_file.name) # doctest: +ELLIPSIS
+  Train...
   >>> # Speaker enrollment (calculate average iVectors for the first speaker)
-  >>> enrolled = bob.kaldi.plda_enroll(train_feats[0], plda[1])
+  >>> print ("Speaker enrollment"); enrolled = bob.kaldi.plda_enroll(train_feats[0], plda[1]) # doctest: +ELLIPSIS
+  Speaker...
   >>> # Calculate PLDA score
-  >>> score = bob.kaldi.plda_score(test_feats, enrolled, plda[0], plda[1])
+  >>> print ("PLDA score"); score = bob.kaldi.plda_score(test_feats, enrolled, plda[0], plda[1]) # doctest: +ELLIPSIS
+  PLDA...
   >>> print ('%.4f' % score)
   -23.9922
 
@@ -145,7 +152,8 @@ but might be used also for the laughter and noise detection as well.
     >>> trn = trnf.read()
     >>> nnetf.close()
     >>> trnf.close()
-    >>> ours = bob.kaldi.nnet_forward(feats, dnn, trn)
+    >>> print ("NNET forward"); ours = bob.kaldi.nnet_forward(feats, dnn, trn) # doctest: +ELLIPSIS
+    NNET...
     >>> print (ours.shape)
     (317, 43)
 
@@ -206,7 +214,8 @@ independent. The training of such model has following pipeline:
     >>> topof = open(topofile)
     >>> topo = topof.read()
     >>> topof.close()
-    >>> model = bob.kaldi.train_mono(train_set, labels, fstfile, topo, phfile , numgauss=2, num_iters=2)
+    >>> print ("Train mono"); model = bob.kaldi.train_mono(train_set, labels, fstfile, topo, phfile , numgauss=2, num_iters=2) # doctest: +ELLIPSIS
+    Train...
     >>> print (model.find('TransitionModel'))
     1 
 
@@ -223,7 +232,8 @@ phones are decoded per frame.
 
     >>> sample = pkg_resources.resource_filename('bob.kaldi', 'test/data/librivox.wav')
     >>> data = bob.io.audio.reader(sample)
-    >>> post, labs = bob.kaldi.compute_dnn_phone(data.load()[0], data.rate)
+    >>> print ("Compute dnn phone"); post, labs = bob.kaldi.compute_dnn_phone(data.load()[0], data.rate) # doctest: +ELLIPSIS
+    Compute...
     >>> mdecoding = numpy.argmax(post,axis=1) # max decoding
     >>> print (labs[mdecoding[250]]) # the last spoken sound of sample is N (of the word DOMAIN)
     N
