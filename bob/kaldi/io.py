@@ -87,7 +87,7 @@ def read_key(fd):
     str = str.strip()
     if str == b'':
         return None  # end of file,
-    assert(re.match(b'^[\.a-zA-Z0-9_-]+$', str) is not None)  # check format,
+    assert(re.match(b'^[\.a-zA-Z0-9_<>-]+$', str) is not None)  # check format,
     return str
 
 
@@ -339,6 +339,9 @@ def write_vec_flt(file_or_fd, v, key=b''):
             fd.close()
 
 
+
+
+
 #################################################
 # Float matrices (features, transformations, ...),
 
@@ -372,7 +375,33 @@ def read_mat_scp(file_or_fd):
             fd.close()
 
 
-def read_mat_ark(file_or_fd):
+def read_plda(file_or_fd):
+    """res = read_plda(file_or_fd)
+    Returns a dictionary {'mean':plda_mean, 'transform':plda_transform, 'psi':plda_psi}, read from ark file/stream.
+    file_or_fd : scp, gzipped scp, pipe or opened file descriptor.
+
+    Parameters
+    ----------
+    file_or_fd : obj
+        An ark, gzipped ark, pipe or opened file descriptor.
+    """
+    fd = open_or_fd(file_or_fd)
+    try:
+        assert fd.read(2) == b'\0B'
+        plda_tag = read_key(fd)
+        assert plda_tag == b'<Plda>'
+        
+        mean = read_mat(fd, True)
+        transform = read_mat(fd, True)
+        psi = read_mat(fd, True)
+
+        return {'mean':mean, 'transform':transform, 'psi':psi}
+              
+    finally:
+        if fd is not file_or_fd:
+            fd.close()
+
+def read_mat_ark(file_or_fd, read_binary=False):
     """generator(key,mat) = read_mat_ark(file_or_fd)
     Returns generator of (key,matrix) tuples, read from ark file/stream.
     file_or_fd : scp, gzipped scp, pipe or opened file descriptor.
@@ -389,12 +418,14 @@ def read_mat_ark(file_or_fd):
     ----------
     file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
+    read_binary : boolean
+        If set directly read binary mat
     """
     fd = open_or_fd(file_or_fd)
     try:
         key = read_key(fd)
         while key:
-            mat = read_mat(fd)
+            mat = read_mat(fd, read_binary)
             yield key, mat
             key = read_key(fd)
     finally:
@@ -402,7 +433,7 @@ def read_mat_ark(file_or_fd):
             fd.close()
 
 
-def read_mat(file_or_fd):
+def read_mat(file_or_fd, read_binary=False):
     """[mat] = read_mat(file_or_fd)
     Reads single kaldi matrix, supports ascii and binary.
 
@@ -410,15 +441,20 @@ def read_mat(file_or_fd):
     ----------
     file_or_fd : obj
         An ark, gzipped ark, pipe or opened file descriptor.
+    read_binary : boolean
+        If set directly read binary mat
     """
     fd = open_or_fd(file_or_fd)
     try:
-        binary = fd.read(2)
-        if binary == b'\0B':
-            mat = _read_mat_binary(fd)
+        if not read_binary:
+            binary = fd.read(2)
+            if binary == b'\0B':
+                mat = _read_mat_binary(fd)
+            else:
+                assert(binary == b' [')
+                mat = _read_mat_ascii(fd)
         else:
-            assert(binary == b' [')
-            mat = _read_mat_ascii(fd)
+            mat = _read_mat_binary(fd)
     finally:
         if fd is not file_or_fd:
             fd.close()
@@ -428,16 +464,25 @@ def read_mat(file_or_fd):
 def _read_mat_binary(fd):
     # Data type
     type = fd.read(3)
-    if type == b'FM ':
+    if type == b'FM ' or type == b'FV ':
         sample_size = 4  # floats
-    if type == b'DM ':
+    elif type == b'DM ' or type == b'DV ':
         sample_size = 8  # doubles
+
+         
+    read_vector = False
+    if type == b'FV ' or type == b'DV ':
+        read_vector = True
+
     assert(sample_size > 0)
     # Dimensions
     fd.read(1)
     rows = struct.unpack('<i', fd.read(4))[0]
-    fd.read(1)
-    cols = struct.unpack('<i', fd.read(4))[0]
+    if not read_vector:
+        fd.read(1)
+        cols = struct.unpack('<i', fd.read(4))[0]
+    else:
+        cols = 1
     # Read whole matrix
     buf = fd.read(rows * cols * sample_size)
     if sample_size == 4:
@@ -468,6 +513,57 @@ def _read_mat_ascii(fd):
 
 # Writing,
 
+def write_vec(file_or_fd, v, key=b''):
+    """write_vec(f, v, key='')
+    Write a binary kaldi vector to filename or stream. Supports 32bit and 64bit
+    floats.
+
+    Parameters
+    ----------
+    file_or_fd: obj
+        filename of opened file descriptor for writing,
+    v: numpy.ndarray
+        the vector or matrix to be stored, for matrix it will be reshaped to vector in C order,
+    key : str, optional
+        used for writing ark-file, the utterance-id gets written before the
+        vector.
+
+    Example of writing single vector:
+    kaldi_io.write_vec(filename, vec)
+
+    Example of writing arkfile:
+    with open(ark_file,'w') as f:
+        for key,vec in dict.iteritems():
+            kaldi_io.write_vec(f, vec, key=key)
+
+    Raises
+    ------
+    MatrixDataTypeError
+        Unsupported data-type of the input file.
+    """
+    fd = open_or_fd(file_or_fd, mode='wb')
+    try:
+        if key != b'':
+            fd.write(key + b' ')  # ark-files have keys (utterance-id),
+        fd.write(b'\0B')  # we write binary!
+        # Data-type,
+        if v.dtype == 'float32':
+            fd.write(b'FV ')
+        elif v.dtype == 'float64':
+            fd.write(b'DV ')
+        else:
+            raise MatrixDataTypeError
+        # Dims,
+        dim = v.size
+        fd.write(b'\04')
+        fd.write(struct.pack('I', dim))  # vector length
+        # Data,
+        # m.tofile(fd, sep=b"") # binary
+        fd.write(v.tobytes())
+
+    finally:
+        if fd is not file_or_fd:
+            fd.close()
 
 def write_mat(file_or_fd, m, key=b''):
     """write_mat(f, m, key='')
