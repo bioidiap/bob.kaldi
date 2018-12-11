@@ -2,4 +2,4 @@ include LICENSE README.rst buildout.cfg develop.cfg version.txt requirements.txt
 recursive-include doc conf.py *.rst
 recursive-include bob/kaldi/test/dnn *.txt
 recursive-include bob/kaldi/test/hmm *.txt *.fst
-recursive-include bob/kaldi/test/data *.wav *.txt *.npy *.ivector *.ie
+recursive-include bob/kaldi/test/data *.wav *.txt *.npy *.ivector *.ie *.ark plda
