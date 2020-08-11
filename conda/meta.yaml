@@ -39,7 +39,7 @@ requirements:
     - {{ pin_compatible('numpy') }}
     - {{ pin_compatible('scipy') }}
     # hack due to https://github.com/conda/conda-build/issues/2926
-    - {{ pin_compatible('kaldi', max_pin='x.x')|replace(">=", ">=1!")|replace("<", "<1!") }}
+    - {{ pin_compatible('kaldi', max_pin='x.x')|replace("1!", "")|replace(">=", ">=1!")|replace("<", "<1!") }}
 
 test:
   imports:
