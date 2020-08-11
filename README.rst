@@ -1,15 +1,15 @@
 .. vim: set fileencoding=utf-8 :
 
 .. image:: https://img.shields.io/badge/docs-stable-yellow.svg
-   :target: https://www.idiap.ch/software/bob/docs/bob.kaldi/stable/index.html
+   :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/stable/index.html
 .. image:: https://img.shields.io/badge/docs-latest-orange.svg
-   :target: https://www.idiap.ch/software/bob/docs/bob.kaldi/master/index.html
-.. image:: https://gitlab.idiap.ch/bob.kaldi/badges/master/pipeline.svg
-   :target: https://gitlab.idiap.ch/bob.kaldi/commits/master
-.. image:: https://gitlab.idiap.ch/bob.kaldi/badges/master/coverage.svg
-   :target: https://www.idiap.ch/software/bob/docs/bob.kaldi/master/coverage/index.html
+   :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/master/index.html
+.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/pipeline.svg
+   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/master
+.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/coverage.svg
+   :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/master/coverage/index.html
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
-   :target: https://gitlab.idiap.ch/bob.kaldi
+   :target: https://gitlab.idiap.ch/bob/bob.kaldi
 .. image:: https://img.shields.io/pypi/v/bob.kaldi.svg
    :target: https://pypi.python.org/pypi/bob.kaldi
 
