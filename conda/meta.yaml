@@ -21,15 +21,15 @@ requirements:
     - python {{ python }}
     - setuptools {{ setuptools }}
     - bob.extension
+    - bob.io.audio
     - numpy {{ numpy }}
     - scipy {{ scipy }}
     - kaldi {{ kaldi }}
-    - bob.io.audio
   run:
     - python
     - setuptools
-    - numpy
-    - scipy
+    - {{ pin_compatible('numpy') }}
+    - {{ pin_compatible('scipy') }}
 
 test:
   imports:

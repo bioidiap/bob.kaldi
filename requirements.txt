@@ -1,5 +1,5 @@
 setuptools
 bob.extension
+bob.io.audio
 numpy
 scipy
-bob.io.audio

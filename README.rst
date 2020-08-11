@@ -1,19 +1,18 @@
 .. vim: set fileencoding=utf-8 :
-.. Milos Cernak <milos.cernak@idiap.ch>
-.. Tue Apr  4 15:28:26 CEST 2017
 
-.. image:: http://img.shields.io/badge/docs-stable-yellow.svg
-   :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/stable/index.html
-.. image:: http://img.shields.io/badge/docs-latest-orange.svg
-   :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/build.svg
-   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/master
-.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/coverage.svg
-   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/master
+.. image:: https://img.shields.io/badge/docs-stable-yellow.svg
+   :target: https://www.idiap.ch/software/bob/docs/bob.kaldi/stable/index.html
+.. image:: https://img.shields.io/badge/docs-latest-orange.svg
+   :target: https://www.idiap.ch/software/bob/docs/bob.kaldi/master/index.html
+.. image:: https://gitlab.idiap.ch/bob.kaldi/badges/master/pipeline.svg
+   :target: https://gitlab.idiap.ch/bob.kaldi/commits/master
+.. image:: https://gitlab.idiap.ch/bob.kaldi/badges/master/coverage.svg
+   :target: https://www.idiap.ch/software/bob/docs/bob.kaldi/master/coverage/index.html
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
-   :target: https://gitlab.idiap.ch/bob/bob.kaldi
-.. image:: http://img.shields.io/pypi/v/bob.kaldi.svg
+   :target: https://gitlab.idiap.ch/bob.kaldi
+.. image:: https://img.shields.io/pypi/v/bob.kaldi.svg
    :target: https://pypi.python.org/pypi/bob.kaldi
+
 
 
 ===========================
