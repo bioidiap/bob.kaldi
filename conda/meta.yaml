@@ -29,7 +29,7 @@ requirements:
     - bob.io.audio
     - numpy {{ numpy }}
     - scipy {{ scipy }}
-    - kaldi {{ kaldi }}
+    - kaldi {{ kaldi }}  # [linux]
   run:
     - python
     - setuptools
