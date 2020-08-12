@@ -1,19 +1,18 @@
 .. vim: set fileencoding=utf-8 :
-.. Milos Cernak <milos.cernak@idiap.ch>
-.. Tue Apr  4 15:28:26 CEST 2017
 
-.. image:: http://img.shields.io/badge/docs-stable-yellow.svg
+.. image:: https://img.shields.io/badge/docs-stable-yellow.svg
    :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/stable/index.html
-.. image:: http://img.shields.io/badge/docs-latest-orange.svg
+.. image:: https://img.shields.io/badge/docs-latest-orange.svg
    :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/build.svg
+.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/pipeline.svg
    :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/master
 .. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/coverage.svg
-   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/master
+   :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/master/coverage/index.html
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.kaldi
-.. image:: http://img.shields.io/pypi/v/bob.kaldi.svg
+.. image:: https://img.shields.io/pypi/v/bob.kaldi.svg
    :target: https://pypi.python.org/pypi/bob.kaldi
+
 
 
 ===========================
@@ -22,7 +21,11 @@
 
 This package provides pythonic bindings for Kaldi_ functionality so it can be
 seamlessly integrated with Python-based workflows. It is a part fo the signal-
-processing and machine learning toolbox Bob_.
+processing and machine learning toolbox Bob_. If you make use of bob.kaldi,
+please cite our publication:
+
+   M. Cernak, A. Komaty, A. Mohammadi, A. Anjos, and S. Marcel, “Bob speaks kaldi,” Aug. 2017.
+
 
 
 Installation

@@ -3,24 +3,37 @@
 # Milos Cernak <milos.cernak@idiap.ch>
 # August 28, 2017
 
+import logging
 import os
+import tempfile
+from subprocess import PIPE
+from subprocess import Popen
 
 import numpy as np
 
 from . import io
-from subprocess import PIPE, Popen
-from os.path import isfile
-import tempfile
-# import shutil
-import logging
+
 logger = logging.getLogger(__name__)
 
 
-def cepstral(data, cepstral_type, rate=8000,
-         preemphasis_coefficient=0.97, raw_energy=True, delta_order=2,
-         frame_length=25, frame_shift=10, num_ceps=13,
-         num_mel_bins=23, cepstral_lifter=22, low_freq=20,
-         high_freq=0, dither=1.0, snip_edges=True, normalization=True): 
+def cepstral(
+    data,
+    cepstral_type,
+    rate=8000,
+    preemphasis_coefficient=0.97,
+    raw_energy=True,
+    delta_order=2,
+    frame_length=25,
+    frame_shift=10,
+    num_ceps=13,
+    num_mel_bins=23,
+    cepstral_lifter=22,
+    low_freq=20,
+    high_freq=0,
+    dither=1.0,
+    snip_edges=True,
+    normalization=True,
+):
     """Computes the cepstral (mfcc/plp) features for given speech samples.
 
     Parameters
@@ -63,7 +76,7 @@ def cepstral(data, cepstral_type, rate=8000,
         that completely fit in the file, and the number of frames
         depends on the frame-length.  If false, the number of frames
         depends only on the frame-shift, and we reflect the data at
-        the ends. 
+        the ends.
     normalization : :obj:`bool`, optional
         If true, the input samples in ``data`` are normalized to [-1, 1].
 
@@ -75,35 +88,35 @@ def cepstral(data, cepstral_type, rate=8000,
 
     """
 
-    assert(cepstral_type == 'mfcc' or cepstral_type == 'plp')
-    binary1 = 'compute-' + cepstral_type + '-feats'
+    assert cepstral_type == "mfcc" or cepstral_type == "plp"
+    binary1 = "compute-" + cepstral_type + "-feats"
     cmd1 = [binary1]
-    binary2 = 'compute-cmvn-stats'
+    binary2 = "compute-cmvn-stats"
     cmd2 = [binary2]
-    binary3 = 'apply-cmvn'
+    binary3 = "apply-cmvn"
     cmd3 = [binary3]
-    binary4 = 'add-deltas'
+    binary4 = "add-deltas"
     cmd4 = [binary4]
 
     # compute features plus deltas and sliding cmvn into the ark file
     cmd1 += [
-        '--sample-frequency=' + str(rate),
-        '--preemphasis-coefficient=' + str(preemphasis_coefficient),
-        '--raw-energy=' + str(raw_energy).lower(),
-        '--frame-length=' + str(frame_length),
-        '--frame-shift=' + str(frame_shift),
-        '--num-ceps=' + str(num_ceps),
-        '--num-mel-bins=' + str(num_mel_bins),
-        '--cepstral-lifter=' + str(cepstral_lifter),
-        '--dither=' + str(dither),
-        '--snip-edges=' + str(snip_edges).lower(),
-        'ark:-',
-        'ark:-',
+        "--sample-frequency=" + str(rate),
+        "--preemphasis-coefficient=" + str(preemphasis_coefficient),
+        "--raw-energy=" + str(raw_energy).lower(),
+        "--frame-length=" + str(frame_length),
+        "--frame-shift=" + str(frame_shift),
+        "--num-ceps=" + str(num_ceps),
+        "--num-mel-bins=" + str(num_mel_bins),
+        "--cepstral-lifter=" + str(cepstral_lifter),
+        "--dither=" + str(dither),
+        "--snip-edges=" + str(snip_edges).lower(),
+        "ark:-",
+        "ark:-",
     ]
     cmd4 += [
-        '--delta-order=' + str(delta_order),
-        'ark:-',
-        'ark:-',
+        "--delta-order=" + str(delta_order),
+        "ark:-",
+        "ark:-",
     ]
 
     # import ipdb; ipdb.set_trace()
@@ -115,7 +128,7 @@ def cepstral(data, cepstral_type, rate=8000,
         pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=fnull)
 
         # write wav file name (as if it were a Kaldi ark file)
-        pipe1.stdin.write(b'abc ')
+        pipe1.stdin.write(b"abc ")
         # write WAV file in 16-bit format
         io.write_wav(pipe1.stdin, data, rate)
         pipe1.stdin.close()
@@ -125,30 +138,31 @@ def cepstral(data, cepstral_type, rate=8000,
     assert len(feats)
 
     # Compute and apply CMVN with deltas
-    with tempfile.NamedTemporaryFile(suffix='.cmvn') as cmvnfile,\
-        open(os.devnull, "w") as fnull:
-        
+    with tempfile.NamedTemporaryFile(suffix=".cmvn") as cmvnfile, open(
+        os.devnull, "w"
+    ) as fnull:
+
         cmd2 += [
-            'ark:-',
-            'arkcmvnfile.name',
+            "ark:-",
+            cmvnfile.name,
         ]
 
         pipe2 = Popen(cmd2, stdin=PIPE, stdout=PIPE, stderr=fnull)
-        io.write_mat(pipe2.stdin, feats, key=b'abc')
+        io.write_mat(pipe2.stdin, feats, key=b"abc")
         # pipe2.stdin.close()
         pipe2.communicate()
 
         cmd3 += [
-            'arkcmvnfile.name',
-            'ark:-',
-            'ark:-',
+            cmvnfile.name,
+            "ark:-",
+            "ark:-",
         ]
 
         pipe3 = Popen(cmd3, stdin=PIPE, stdout=PIPE, stderr=fnull)
         pipe4 = Popen(cmd4, stdin=pipe3.stdout, stdout=PIPE, stderr=fnull)
-        io.write_mat(pipe3.stdin, feats, key=b'abc')
+        io.write_mat(pipe3.stdin, feats, key=b"abc")
         pipe3.stdin.close()
-        
+
         ret = [mat for name, mat in io.read_mat_ark(pipe4.stdout)][0]
 
         return ret
