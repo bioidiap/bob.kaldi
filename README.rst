@@ -1,12 +1,12 @@
 .. vim: set fileencoding=utf-8 :
 
-.. image:: https://img.shields.io/badge/docs-stable-yellow.svg
-   :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/stable/index.html
+.. image:: https://img.shields.io/badge/docs-v1.3.0-yellow.svg
+   :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/v1.3.0/index.html
 .. image:: https://img.shields.io/badge/docs-latest-orange.svg
    :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/pipeline.svg
-   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/master
-.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/master/coverage.svg
+.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/v1.3.0/pipeline.svg
+   :target: https://gitlab.idiap.ch/bob/bob.kaldi/commits/v1.3.0
+.. image:: https://gitlab.idiap.ch/bob/bob.kaldi/badges/v1.3.0/coverage.svg
    :target: https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/master/coverage/index.html
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.kaldi
