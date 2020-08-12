@@ -5,16 +5,9 @@
 
 import logging
 import os
-import shutil
 import tempfile
-from os.path import isfile
 from subprocess import PIPE
 from subprocess import Popen
-
-import numpy as np
-import pkg_resources
-
-import bob.kaldi
 
 from . import io
 

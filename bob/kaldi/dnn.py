@@ -3,11 +3,9 @@
 # Milos Cernak <milos.cernak@idiap.ch>
 # August 31, 2017
 
-# import shutil
 import logging
 import os
 import tempfile
-from os.path import isfile
 from subprocess import PIPE
 from subprocess import Popen
 
@@ -122,7 +120,7 @@ def compute_dnn_vad(samples, rate, silence_threshold=0.9, posterior=0):
         The sampling rate of the input signal in ``samples``.
     silence_threshold: :obj:`float`, optional
         Silence threshold to be used for silence posterior
-        evaluation. 
+        evaluation.
     posterior: :obj:`int`, optional
         Index of posterior feature to be used for detection. Useful
         ones are 0, 1 and 2, for silence, laughter and
@@ -186,9 +184,9 @@ def compute_dnn_phone(samples, rate):
         trn = trnf.read()
         post = bob.kaldi.nnet_forward(feats, dnn, trn)
 
-    labels = a = np.genfromtxt(labfile, dtype="str", skip_header=1)
+    labels = np.genfromtxt(labfile, dtype="str", skip_header=1)
     lab = []
-    for l in labels:
-        lab.append(l[0])
+    for lab in labels:
+        lab.append(lab[0])
 
     return [post, lab]

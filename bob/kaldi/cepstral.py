@@ -3,11 +3,9 @@
 # Milos Cernak <milos.cernak@idiap.ch>
 # August 28, 2017
 
-# import shutil
 import logging
 import os
 import tempfile
-from os.path import isfile
 from subprocess import PIPE
 from subprocess import Popen
 
@@ -78,7 +76,7 @@ def cepstral(
         that completely fit in the file, and the number of frames
         depends on the frame-length.  If false, the number of frames
         depends only on the frame-shift, and we reflect the data at
-        the ends. 
+        the ends.
     normalization : :obj:`bool`, optional
         If true, the input samples in ``data`` are normalized to [-1, 1].
 
@@ -146,7 +144,7 @@ def cepstral(
 
         cmd2 += [
             "ark:-",
-            "arkcmvnfile.name",
+            cmvnfile.name,
         ]
 
         pipe2 = Popen(cmd2, stdin=PIPE, stdout=PIPE, stderr=fnull)
@@ -155,7 +153,7 @@ def cepstral(
         pipe2.communicate()
 
         cmd3 += [
-            "arkcmvnfile.name",
+            cmvnfile.name,
             "ark:-",
             "ark:-",
         ]

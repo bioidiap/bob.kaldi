@@ -87,7 +87,7 @@ def read_key(fd):
     str = str.strip()
     if str == b"":
         return None  # end of file,
-    assert re.match(b"^[\.a-zA-Z0-9_<>-]+$", str) is not None  # check format,
+    assert re.match(b"^[\\.a-zA-Z0-9_<>-]+$", str) is not None  # check format,
     return str
 
 
@@ -491,7 +491,7 @@ def _read_mat_binary(fd):
     elif sample_size == 8:
         vec = np.frombuffer(buf, dtype="float64")
     else:
-        raise BadSampleSize
+        raise ValueError("BadSampleSize")
     mat = np.reshape(vec, (rows, cols))
     return mat
 
@@ -501,7 +501,7 @@ def _read_mat_ascii(fd):
     while 1:
         line = fd.readline()
         if len(line) == 0:
-            raise BadInputFormat  # eof, should not happen!
+            raise ValueError("BadInputFormat")  # eof, should not happen!
         if len(line.strip()) == 0:
             continue  # skip empty line
         arr = line.strip().split()
@@ -555,7 +555,7 @@ def write_vec(file_or_fd, v, key=b""):
         elif v.dtype == "float64":
             fd.write(b"DV ")
         else:
-            raise MatrixDataTypeError
+            raise ValueError("MatrixDataTypeError")
         # Dims,
         dim = v.size
         fd.write(b"\04")
@@ -608,7 +608,7 @@ def write_mat(file_or_fd, m, key=b""):
         elif m.dtype == "float64":
             fd.write(b"DM ")
         else:
-            raise MatrixDataTypeError
+            raise ValueError("MatrixDataTypeError")
         # Dims,
         fd.write(b"\04")
         fd.write(struct.pack("I", m.shape[0]))  # rows
