@@ -541,7 +541,7 @@ def write_vec(file_or_fd, v, key=b""):
 
     Raises
     ------
-    MatrixDataTypeError
+    ValueError
         Unsupported data-type of the input file.
     """
     fd = open_or_fd(file_or_fd, mode="wb")
@@ -594,7 +594,7 @@ def write_mat(file_or_fd, m, key=b""):
 
     Raises
     ------
-    MatrixDataTypeError
+    ValueError
         Unsupported data-type of the input file.
     """
     fd = open_or_fd(file_or_fd, mode="wb")
