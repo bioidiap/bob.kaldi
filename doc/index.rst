@@ -14,7 +14,10 @@
 .. todolist::
 
 This package provides a pythonic API for Kaldi_ functionality so it can be
-seamlessly integrated with Python-based workflows.
+seamlessly integrated with Python-based workflows. If you make use of bob.kaldi,
+please cite our publication:
+
+   M. Cernak, A. Komaty, A. Mohammadi, A. Anjos, and S. Marcel, “Bob speaks kaldi,” Aug. 2017.
 
 Documentation
 -------------

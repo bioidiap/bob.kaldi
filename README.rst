@@ -21,7 +21,11 @@
 
 This package provides pythonic bindings for Kaldi_ functionality so it can be
 seamlessly integrated with Python-based workflows. It is a part fo the signal-
-processing and machine learning toolbox Bob_.
+processing and machine learning toolbox Bob_. If you make use of bob.kaldi,
+please cite our publication:
+
+   M. Cernak, A. Komaty, A. Mohammadi, A. Anjos, and S. Marcel, “Bob speaks kaldi,” Aug. 2017.
+
 
 
 Installation
