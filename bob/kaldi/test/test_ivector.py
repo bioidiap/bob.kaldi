@@ -76,7 +76,7 @@ def test_ivector_extract():
 
     theirs = np.loadtxt(reference)
 
-    np.testing.assert_allclose(ivector_array, theirs)
+    np.testing.assert_allclose(ivector_array, theirs, rtol=1e-03, atol=1e-05)
 
 
 def test_plda_train():
