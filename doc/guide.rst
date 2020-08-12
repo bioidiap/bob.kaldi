@@ -95,8 +95,8 @@ are supported, speakers can be enrolled and scored:
   Enrollement...
   >>> print ("GMN scoring"); score = bob.kaldi.gmm_score(feat, spk_model, dubm) # doctest: +ELLIPSIS
   GMN...
-  >>> print ('%.3f' % score)
-  0.282
+  >>> print ('%.2f' % score)
+  0.29
 
 iVector + PLDA training and evaluation
 --------------------------------------
@@ -141,8 +141,8 @@ and noise, indexed 0, 1 and 2, respectively. These posteriors are thus
 used for silence detection in :py:func:`bob.kaldi.compute_dnn_vad`,
 but might be used also for the laughter and noise detection as well.
 
-.. doctest::	     
-	     
+.. doctest::
+
     >>> nnetfile   = pkg_resources.resource_filename('bob.kaldi', 'test/dnn/ami.nnet.txt')
     >>> transfile = pkg_resources.resource_filename('bob.kaldi', 'test/dnn/ami.feature_transform.txt')
     >>> feats = bob.kaldi.cepstral(data.load()[0], 'mfcc', data.rate, normalization=False)
@@ -162,8 +162,8 @@ Speech recognition
 ===================
 
 Speech recognition is a processes that generates a text transcript
-given speech audio. Most of current Automatic Speech Recognition 
-(ASR) systems use the following pipeline: 
+given speech audio. Most of current Automatic Speech Recognition
+(ASR) systems use the following pipeline:
 
 .. image:: img/ASR.png
 
@@ -200,8 +200,8 @@ independent. The training of such model has following pipeline:
   and GMM objects for equally spaced alignments.
 * Iterative alignment and update stage.
 
-  
-.. doctest::     
+
+.. doctest::
 
     >>> fstfile   = pkg_resources.resource_filename('bob.kaldi', 'test/hmm/L.fst')
     >>> topofile = pkg_resources.resource_filename('bob.kaldi', 'test/hmm/topo.txt')
@@ -217,7 +217,7 @@ independent. The training of such model has following pipeline:
     >>> print ("Train mono"); model = bob.kaldi.train_mono(train_set, labels, fstfile, topo, phfile , numgauss=2, num_iters=2) # doctest: +ELLIPSIS
     Train...
     >>> print (model.find('TransitionModel'))
-    1 
+    1
 
 Phone frame decoding
 --------------------
@@ -239,4 +239,4 @@ phones are decoded per frame.
     N
 
 .. include:: links.rst
-    
+
