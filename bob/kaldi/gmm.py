@@ -4,22 +4,31 @@
 # March 1, 2017
 #
 
+import logging
 import os
+import shutil
+import tempfile
+from subprocess import PIPE
+from subprocess import Popen
 
 from . import io
 
-from subprocess import PIPE, Popen
-import tempfile
-import shutil
-
-import logging
 logger = logging.getLogger(__name__)
 
 
-def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
-              min_gaussian_weight=0.0001, num_gauss=2048, num_gauss_init=0,
-              num_gselect=30, num_iters_init=20, num_iters=4,
-              remove_low_count_gaussians=True):
+def ubm_train(
+    feats,
+    ubmname,
+    num_threads=4,
+    num_frames=500000,
+    min_gaussian_weight=0.0001,
+    num_gauss=2048,
+    num_gauss_init=0,
+    num_gselect=30,
+    num_iters_init=20,
+    num_iters=4,
+    remove_low_count_gaussians=True,
+):
     """Implements Kaldi egs/sre10/v1/train_diag_ubm.sh
 
     Parameters
@@ -61,64 +70,66 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
 
     """
 
-    binary1 = 'gmm-global-init-from-feats'
-    binary2 = 'subsample-feats'
-    binary3 = 'gmm-gselect'
-    binary4 = 'gmm-global-acc-stats'
-    binary5 = 'gmm-global-est'
-    binary6 = 'gmm-global-copy'
+    binary1 = "gmm-global-init-from-feats"
+    binary2 = "subsample-feats"
+    binary3 = "gmm-gselect"
+    binary4 = "gmm-global-acc-stats"
+    binary5 = "gmm-global-est"
+    binary6 = "gmm-global-copy"
 
     # 1. Initialize a single diagonal GMM
-    cmd1 = [binary1] # gmm-global-init-from-feats
+    cmd1 = [binary1]  # gmm-global-init-from-feats
     cmd1 += [
-        '--num-threads=' + str(num_threads),
-        '--num-frames=' + str(num_frames),
-        '--min-gaussian-weight=' + str(min_gaussian_weight),
-        '--num-gauss=' + str(num_gauss),
-        '--num-gauss-init=' + str(num_gauss_init),
-        '--num-iters=' + str(num_iters_init),
+        "--num-threads=" + str(num_threads),
+        "--num-frames=" + str(num_frames),
+        "--min-gaussian-weight=" + str(min_gaussian_weight),
+        "--num-gauss=" + str(num_gauss),
+        "--num-gauss-init=" + str(num_gauss_init),
+        "--num-iters=" + str(num_iters_init),
     ]
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.dubm') as \
-    initfile, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+    with tempfile.NamedTemporaryFile(
+        delete=False, suffix=".dubm"
+    ) as initfile, tempfile.NamedTemporaryFile(suffix=".log") as logfile:
         cmd1 += [
-            'ark:-',
+            "ark:-",
             initfile.name,
         ]
         pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
         # write ark file into pipe.stdin
-        io.write_mat(pipe1.stdin, feats, key=b'abc')
+        io.write_mat(pipe1.stdin, feats, key=b"abc")
         # pipe1.stdin.close()
         pipe1.communicate()
         with open(logfile.name) as fp:
             logtxt = fp.read()
             logger.debug("%s", logtxt)
-            
+
     # 2. Store Gaussian selection indices on disk-- this speeds up the
     # training passes.
     # subsample-feats --n=$subsample ark:- ark:- |"
-    cmd = [binary2] # subsample-feats
-    with tempfile.NamedTemporaryFile(suffix='.ark') as arkfile, \
-    tempfile.NamedTemporaryFile(delete=False, suffix='.gz') as gselfile:
+    cmd = [binary2]  # subsample-feats
+    with tempfile.NamedTemporaryFile(
+        suffix=".ark"
+    ) as arkfile, tempfile.NamedTemporaryFile(delete=False, suffix=".gz") as gselfile:
         cmd += [
-            '--n=5',
-            'ark:-',
-            'ark:' + arkfile.name,
+            "--n=5",
+            "ark:-",
+            "ark:" + arkfile.name,
         ]
-        with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+        with tempfile.NamedTemporaryFile(suffix=".log") as logfile:
             pipe = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=logfile)
-            io.write_mat(pipe.stdin, feats, key=b'abc')
+            io.write_mat(pipe.stdin, feats, key=b"abc")
             pipe.communicate()
             with open(logfile.name) as fp:
                 logtxt = fp.read()
                 logger.debug("%s", logtxt)
-        cmd2 = [binary3] # gmm-gselect
+        cmd2 = [binary3]  # gmm-gselect
         cmd2 += [
-            '--n=' + str(num_gselect),
+            "--n=" + str(num_gselect),
             initfile.name,
-            'ark:' + arkfile.name,
-            'ark:|gzip -c >' + gselfile.name,
+            "ark:" + arkfile.name,
+            "ark:|gzip -c >" + gselfile.name,
         ]
-        with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+        with tempfile.NamedTemporaryFile(suffix=".log") as logfile:
             pipe2 = Popen(cmd2, stdin=PIPE, stdout=PIPE, stderr=logfile)
             # write ark file into pipe.stdin
             # io.write_mat(pipe2.stdin, feats, key='abc')
@@ -127,23 +138,21 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
             with open(logfile.name) as fp:
                 logtxt = fp.read()
                 logger.debug("%s", logtxt)
-                
+
         inModel = initfile.name
         for x in range(0, num_iters):
             logger.info("Training pass " + str(x))
             # Accumulate stats.
-            with tempfile.NamedTemporaryFile(suffix='.acc') as accfile:
-                cmd3 = [binary4] # gmm-global-acc-stats
+            with tempfile.NamedTemporaryFile(suffix=".acc") as accfile:
+                cmd3 = [binary4]  # gmm-global-acc-stats
                 cmd3 += [
-                    '--gselect=ark,s,cs:gunzip -c ' + gselfile.name + '|',
+                    "--gselect=ark,s,cs:gunzip -c " + gselfile.name + "|",
                     inModel,
-                    'ark:' + arkfile.name,
+                    "ark:" + arkfile.name,
                     accfile.name,
                 ]
-                with tempfile.NamedTemporaryFile(
-                        suffix='.log') as logfile:
-                    pipe3 = Popen(cmd3, stdin=PIPE,
-                                  stdout=PIPE, stderr=logfile)
+                with tempfile.NamedTemporaryFile(suffix=".log") as logfile:
+                    pipe3 = Popen(cmd3, stdin=PIPE, stdout=PIPE, stderr=logfile)
                     # write ark file into pipe.stdin
                     # io.write_mat(pipe3.stdin, feats, key='abc')
                     # pipe3.stdin.close()
@@ -153,37 +162,38 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
                         logger.debug("%s", logtxt)
                 # Don't remove low-count Gaussians till last iter.
                 if x < num_iters - 1:
-                    opt = '--remove-low-count-gaussians=false'
+                    opt = "--remove-low-count-gaussians=false"
                 else:
-                    opt = '--remove-low-count-gaussians=true'
-                cmd4 = [binary5] # gmm-global-est
+                    opt = "--remove-low-count-gaussians=true"
+                cmd4 = [binary5]  # gmm-global-est
                 with tempfile.NamedTemporaryFile(
-                        delete=False, suffix='.dump') as estfile:
+                    delete=False, suffix=".dump"
+                ) as estfile:
                     cmd4 += [
                         opt,
-                        '--min-gaussian-weight=' + str(min_gaussian_weight),
+                        "--min-gaussian-weight=" + str(min_gaussian_weight),
                         inModel,
                         accfile.name,
                         estfile.name,
                     ]
-                    with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
-                        pipe4 = Popen(cmd4, stdin=PIPE,
-                                      stdout=PIPE, stderr=logfile)
+                    with tempfile.NamedTemporaryFile(suffix=".log") as logfile:
+                        pipe4 = Popen(cmd4, stdin=PIPE, stdout=PIPE, stderr=logfile)
                         pipe4.communicate()
                         with open(logfile.name) as fp:
                             logtxt = fp.read()
                             logger.debug("%s", logtxt)
-                            
+
                     os.unlink(inModel)
                     inModel = estfile.name
-   
+
     # 6. Copy a single diagonal GMM as text string (for the BEAT platform)
     ret = ""
-    with tempfile.NamedTemporaryFile(suffix='.txt') as txtfile, \
-         tempfile.NamedTemporaryFile(suffix='.log') as logfile:
-        cmd = [binary6] # gmm-global-copy
+    with tempfile.NamedTemporaryFile(
+        suffix=".txt"
+    ) as txtfile, tempfile.NamedTemporaryFile(suffix=".log") as logfile:
+        cmd = [binary6]  # gmm-global-copy
         cmd += [
-            '--binary=false',
+            "--binary=false",
             estfile.name,
             txtfile.name,
         ]
@@ -193,18 +203,19 @@ def ubm_train(feats, ubmname, num_threads=4, num_frames=500000,
             logtxt = fp.read()
             logger.debug("%s", logtxt)
         shutil.copyfile(txtfile.name, ubmname)
-        with open(txtfile.name, 'rt') as f:
+        with open(txtfile.name, "rt") as f:
             ubmtxt = f.read()
             ret = ubmtxt
 
     os.unlink(estfile.name)
     os.unlink(gselfile.name)
-            
+
     return ret
 
 
-def ubm_full_train(feats, dubm, fubmfile, num_gselect=20, num_iters=4,
-                   min_gaussian_weight=1.0e-04):
+def ubm_full_train(
+    feats, dubm, fubmfile, num_gselect=20, num_iters=4, min_gaussian_weight=1.0e-04
+):
     """ Implements Kaldi egs/sre10/v1/train_full_ubm.sh
 
     Parameters
@@ -230,25 +241,25 @@ def ubm_full_train(feats, dubm, fubmfile, num_gselect=20, num_iters=4,
 
     """
 
-    binary1 = 'gmm-global-to-fgmm'
+    binary1 = "gmm-global-to-fgmm"
     # binary2 = 'fgmm-global-to-gmm'
-    binary3 = 'subsample-feats'
-    binary4 = 'gmm-gselect'
-    binary5 = 'fgmm-global-acc-stats'
-    binary6 = 'fgmm-global-est'
+    binary3 = "subsample-feats"
+    binary4 = "gmm-gselect"
+    binary5 = "fgmm-global-acc-stats"
+    binary6 = "fgmm-global-est"
 
     # Convert UBM string to a file
-    with tempfile.NamedTemporaryFile(
-                        delete=False, suffix='.dump') as dubmfile:
-        with open(dubmfile.name, 'wt') as fp:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".dump") as dubmfile:
+        with open(dubmfile.name, "wt") as fp:
             fp.write(dubm)
 
     # 1. Init (diagonal GMM to full-cov. GMM)
     # gmm-global-to-fgmm $srcdir/final.dubm $dir/0.ubm || exit 1;
-    cmd1 = [binary1] # gmm-global-to-fgmm
-    inModel = ''
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.ubm') as \
-    initfile, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+    cmd1 = [binary1]  # gmm-global-to-fgmm
+    inModel = ""
+    with tempfile.NamedTemporaryFile(
+        delete=False, suffix=".ubm"
+    ) as initfile, tempfile.NamedTemporaryFile(suffix=".log") as logfile:
         inModel = initfile.name
         cmd1 += [
             dubmfile.name,
@@ -259,7 +270,7 @@ def ubm_full_train(feats, dubm, fubmfile, num_gselect=20, num_iters=4,
         with open(logfile.name) as fp:
             logtxt = fp.read()
             logger.debug("%s", logtxt)
-            
+
     # 2. doing Gaussian selection (using diagonal form of model; \
     # selecting $num_gselect indices)
     # gmm-gselect --n=$num_gselect "fgmm-global-to-gmm $dir/0.ubm - \
@@ -267,32 +278,32 @@ def ubm_full_train(feats, dubm, fubmfile, num_gselect=20, num_iters=4,
     #   "ark:|gzip -c >$dir/gselect.JOB.gz" || exit 1;
     # cmd2 = [binary2] # fgmm-global-to-gmm
     # with tempfile.NamedTemporaryFile(suffix='.dubm') as dubmfile, \
-    with tempfile.NamedTemporaryFile(suffix='.ark') as arkfile, \
-         tempfile.NamedTemporaryFile(suffix='.gz') as gselfile:
+    with tempfile.NamedTemporaryFile(
+        suffix=".ark"
+    ) as arkfile, tempfile.NamedTemporaryFile(suffix=".gz") as gselfile:
         # subsample-feats --n=$subsample ark:- ark:- |"
-        cmd = [binary3] # subsample-feats
+        cmd = [binary3]  # subsample-feats
         cmd += [
-            '--n=5',
-            'ark:-',
-            'ark:' + arkfile.name,
+            "--n=5",
+            "ark:-",
+            "ark:" + arkfile.name,
         ]
-        with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+        with tempfile.NamedTemporaryFile(suffix=".log") as logfile:
             pipe = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=logfile)
-            io.write_mat(pipe.stdin, feats, key=b'abc')
+            io.write_mat(pipe.stdin, feats, key=b"abc")
             pipe.communicate()
             with open(logfile.name) as fp:
                 logtxt = fp.read()
                 logger.debug("%s", logtxt)
-        cmd3 = [binary4] # gmm-gselect
+        cmd3 = [binary4]  # gmm-gselect
         cmd3 += [
-            '--n=' + str(num_gselect),
+            "--n=" + str(num_gselect),
             dubmfile.name,
-            'ark:' + arkfile.name,
-            'ark:|gzip -c >' + gselfile.name,
+            "ark:" + arkfile.name,
+            "ark:|gzip -c >" + gselfile.name,
         ]
-        with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
-            pipe3 = Popen(cmd3, stdin=PIPE,
-                          stdout=PIPE, stderr=logfile)
+        with tempfile.NamedTemporaryFile(suffix=".log") as logfile:
+            pipe3 = Popen(cmd3, stdin=PIPE, stdout=PIPE, stderr=logfile)
             # io.write_mat(pipe3.stdin, feats, key='abc')
             # pipe3.stdin.close()
             pipe3.communicate()
@@ -303,20 +314,16 @@ def ubm_full_train(feats, dubm, fubmfile, num_gselect=20, num_iters=4,
         for x in range(0, num_iters):
             logger.info("Training pass " + str(x))
             # Accumulate stats.
-            with tempfile.NamedTemporaryFile(
-                    suffix='.acc') as accfile:
-                cmd4 = [binary5] # fgmm-global-acc-stats
+            with tempfile.NamedTemporaryFile(suffix=".acc") as accfile:
+                cmd4 = [binary5]  # fgmm-global-acc-stats
                 cmd4 += [
-                    '--gselect=ark,s,cs:gunzip -c ' +
-                    gselfile.name + '|',
+                    "--gselect=ark,s,cs:gunzip -c " + gselfile.name + "|",
                     inModel,
-                    'ark:' + arkfile.name,
+                    "ark:" + arkfile.name,
                     accfile.name,
                 ]
-                with tempfile.NamedTemporaryFile(
-                        suffix='.log') as logfile:
-                    pipe4 = Popen(cmd4, stdin=PIPE,
-                                  stdout=PIPE, stderr=logfile)
+                with tempfile.NamedTemporaryFile(suffix=".log") as logfile:
+                    pipe4 = Popen(cmd4, stdin=PIPE, stdout=PIPE, stderr=logfile)
                     # io.write_mat(pipe4.stdin, feats, key='abc')
                     pipe4.communicate()
                     with open(logfile.name) as fp:
@@ -324,32 +331,30 @@ def ubm_full_train(feats, dubm, fubmfile, num_gselect=20, num_iters=4,
                         logger.debug("%s", logtxt)
                 # Don't remove low-count Gaussians till last iter.
                 if x < num_iters - 1:
-                    opt = '--remove-low-count-gaussians=false'
+                    opt = "--remove-low-count-gaussians=false"
                 else:
-                    opt = '--remove-low-count-gaussians=true'
-                cmd5 = [binary6] # fgmm-global-est
+                    opt = "--remove-low-count-gaussians=true"
+                cmd5 = [binary6]  # fgmm-global-est
                 with tempfile.NamedTemporaryFile(
-                        delete=False, suffix='.dump') as estfile:
+                    delete=False, suffix=".dump"
+                ) as estfile:
                     cmd5 += [
                         opt,
-                        '--binary=false',
-                        '--min-gaussian-weight=' +
-                        str(min_gaussian_weight),
+                        "--binary=false",
+                        "--min-gaussian-weight=" + str(min_gaussian_weight),
                         inModel,
                         accfile.name,
                         estfile.name,
                     ]
-                    with tempfile.NamedTemporaryFile(
-                            suffix='.log') as logfile:
-                        pipe5 = Popen(cmd5, stdin=PIPE,
-                                      stdout=PIPE, stderr=logfile)
+                    with tempfile.NamedTemporaryFile(suffix=".log") as logfile:
+                        pipe5 = Popen(cmd5, stdin=PIPE, stdout=PIPE, stderr=logfile)
                         pipe5.communicate()
                         with open(logfile.name) as fp:
                             logtxt = fp.read()
                             logger.debug("%s", logtxt)
                         os.unlink(inModel)
                         inModel = estfile.name
-                        
+
     shutil.copyfile(estfile.name, fubmfile)
     os.unlink(estfile.name)
     os.unlink(dubmfile.name)
@@ -357,6 +362,7 @@ def ubm_full_train(feats, dubm, fubmfile, num_gselect=20, num_iters=4,
     with open(fubmfile) as fp:
         fubmtxt = fp.read()
         return fubmtxt
+
 
 def ubm_enroll(feats, ubm):
     """Performes MAP adaptation of GMM-UBM model.
@@ -376,52 +382,51 @@ def ubm_enroll(feats, ubm):
 
     """
 
-    binary1 = 'gmm-global-acc-stats'
-    binary2 = 'global-gmm-adapt-map'
-    binary3 = 'gmm-global-copy'
+    binary1 = "gmm-global-acc-stats"
+    binary2 = "global-gmm-adapt-map"
+    binary3 = "gmm-global-copy"
 
-    with tempfile.NamedTemporaryFile(
-                        delete=False, suffix='.dump') as ubmfile:
-        with open(ubmfile.name, 'wt') as fp:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".dump") as ubmfile:
+        with open(ubmfile.name, "wt") as fp:
             fp.write(ubm)
-            
+
     # 1. Accumulate stats for training a diagonal-covariance GMM.
-    cmd1 = [binary1] # gmm-global-acc-stats
+    cmd1 = [binary1]  # gmm-global-acc-stats
     cmd1 += [
         ubmfile.name,
-        'ark:-',
-        '-',
+        "ark:-",
+        "-",
     ]
-    cmd2 = [binary2] # global-gmm-adapt-map
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.ubm') as \
-    estfile, tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+    cmd2 = [binary2]  # global-gmm-adapt-map
+    with tempfile.NamedTemporaryFile(
+        delete=False, suffix=".ubm"
+    ) as estfile, tempfile.NamedTemporaryFile(suffix=".log") as logfile:
         cmd2 += [
-            '--update-flags=m',
+            "--update-flags=m",
             ubmfile.name,
-            '-',
+            "-",
             estfile.name,
         ]
 
         pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
-        pipe2 = Popen(cmd2, stdin=pipe1.stdout,
-                      stdout=PIPE, stderr=logfile)
+        pipe2 = Popen(cmd2, stdin=pipe1.stdout, stdout=PIPE, stderr=logfile)
         # write ark file into pipe1.stdin
-        io.write_mat(pipe1.stdin, feats, key=b'abc')
+        io.write_mat(pipe1.stdin, feats, key=b"abc")
         pipe1.stdin.close()
         pipe2.communicate()
-        
+
         with open(logfile.name) as fp:
             logtxt = fp.read()
             logger.debug("%s", logtxt)
 
-
     # 3. Copy adapted diagonal GMM as text string (for the BEAT platform)
     ret = ""
-    with tempfile.NamedTemporaryFile(suffix='.txt') as txtfile, \
-         tempfile.NamedTemporaryFile(suffix='.log') as logfile:
-        cmd = [binary3] # gmm-global-copy
+    with tempfile.NamedTemporaryFile(
+        suffix=".txt"
+    ) as txtfile, tempfile.NamedTemporaryFile(suffix=".log") as logfile:
+        cmd = [binary3]  # gmm-global-copy
         cmd += [
-            '--binary=false',
+            "--binary=false",
             estfile.name,
             txtfile.name,
         ]
@@ -430,15 +435,16 @@ def ubm_enroll(feats, ubm):
         with open(logfile.name) as fp:
             logtxt = fp.read()
             logger.debug("%s", logtxt)
-        with open(txtfile.name, 'rt') as f:
+        with open(txtfile.name, "rt") as f:
             ubmtxt = f.read()
 
             ret = ubmtxt
-    
+
     os.unlink(ubmfile.name)
     os.unlink(estfile.name)
 
     return ret
+
 
 def gmm_score(feats, spkubm, ubm):
     """Print out per-frame log-likelihoods for input utterance.
@@ -461,40 +467,35 @@ def gmm_score(feats, spkubm, ubm):
 
     """
 
-    binary1 = 'gmm-global-get-frame-likes'
+    binary1 = "gmm-global-get-frame-likes"
 
     # Convert UBM string to a file
-    with tempfile.NamedTemporaryFile(
-                        delete=False, suffix='.dubm') as ubmfile:
-        with open(ubmfile.name, 'wt') as fp:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".dubm") as ubmfile:
+        with open(ubmfile.name, "wt") as fp:
             fp.write(ubm)
 
     # Convert speaker UBM string to a file
-    with tempfile.NamedTemporaryFile(
-                        delete=False, suffix='.dubm') as spkubmfile:
-        with open(spkubmfile.name, 'wt') as fp:
-            fp.write(spkubm)            
-    
-    models = [
-        spkubmfile.name,
-        ubmfile.name
-    ]
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".dubm") as spkubmfile:
+        with open(spkubmfile.name, "wt") as fp:
+            fp.write(spkubm)
+
+    models = [spkubmfile.name, ubmfile.name]
     ret = [0, 0]
     # import ipdb; ipdb.set_trace()
     for i, m in enumerate(models):
         # 1. Accumulate stats for training a diagonal-covariance GMM.
         cmd1 = [binary1]
         cmd1 += [
-            '--average=true',
+            "--average=true",
             m,
-            'ark:-',
-            'ark,t:-',
+            "ark:-",
+            "ark,t:-",
         ]
 
-        with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+        with tempfile.NamedTemporaryFile(suffix=".log") as logfile:
             pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
             # write ark file into pipe1.stdin
-            io.write_mat(pipe1.stdin, feats, key=b'abc')
+            io.write_mat(pipe1.stdin, feats, key=b"abc")
             pipe1.stdin.close()
             # pipe1.communicate()
 
@@ -510,6 +511,7 @@ def gmm_score(feats, spkubm, ubm):
     os.unlink(ubmfile.name)
     os.unlink(spkubmfile.name)
     return ret[0] - ret[1]
+
 
 # def gmm_score_fast(feats, gmm_file, ubm_file):
 #   """Print out per-frame log-likelihoods for each utterance, as an archive

@@ -3,26 +3,34 @@
 # Milos Cernak <milos.cernak@idiap.ch>
 # August 31, 2017
 
-import os
-
-import numpy as np
-
-from . import io
-from subprocess import PIPE, Popen
-from os.path import isfile
-import tempfile
 # import shutil
 import logging
+import os
+import tempfile
+from os.path import isfile
+from subprocess import PIPE
+from subprocess import Popen
+
+import numpy as np
 import pkg_resources
 
 import bob.kaldi
 
+from . import io
+
 logger = logging.getLogger(__name__)
 
 
-def nnet_forward(feats, nnet, feats_transform='', apply_log=False,
-                 no_softmax=False, prior_floor=1e-10, prior_scale=1,
-                 use_gpu=False):
+def nnet_forward(
+    feats,
+    nnet,
+    feats_transform="",
+    apply_log=False,
+    no_softmax=False,
+    prior_floor=1e-10,
+    prior_scale=1,
+    use_gpu=False,
+):
     """Computes the forward pass for given features.
 
     Parameters
@@ -52,42 +60,40 @@ def nnet_forward(feats, nnet, feats_transform='', apply_log=False,
 
     """
 
-    binary1 = 'nnet-forward'
+    binary1 = "nnet-forward"
     cmd1 = [binary1]
 
     cmd1 += [
-        '--apply-log=' + str(apply_log).lower(),
-        '--no-softmax=' + str(no_softmax).lower(),
-        '--prior-floor=' + str(prior_floor),
-        '--prior-scale=' + str(prior_scale),
-        '--use-gpu=' + str(use_gpu).lower(),
+        "--apply-log=" + str(apply_log).lower(),
+        "--no-softmax=" + str(no_softmax).lower(),
+        "--prior-floor=" + str(prior_floor),
+        "--prior-scale=" + str(prior_scale),
+        "--use-gpu=" + str(use_gpu).lower(),
     ]
-        
+
     # save nnet model to a file
-    with tempfile.NamedTemporaryFile(
-            delete=False, suffix='.nnet') as dnn:
-        with open(dnn.name, 'wt') as fp:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".nnet") as dnn:
+        with open(dnn.name, "wt") as fp:
             fp.write(nnet)
 
-    if feats_transform != '':
+    if feats_transform != "":
         # save nnet transform model to a file
-        with tempfile.NamedTemporaryFile(
-                delete=False, suffix='.nnet') as transf:
-            with open(transf.name, 'wt') as fp:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".nnet") as transf:
+            with open(transf.name, "wt") as fp:
                 fp.write(feats_transform)
-                
+
         cmd1 += [
-            '--feature-transform=' + transf.name,
+            "--feature-transform=" + transf.name,
         ]
 
     cmd1 += [
         dnn.name,
-        'ark:-',
-        'ark:-',
+        "ark:-",
+        "ark:-",
     ]
-    with tempfile.NamedTemporaryFile(suffix='.log') as logfile:
+    with tempfile.NamedTemporaryFile(suffix=".log") as logfile:
         pipe1 = Popen(cmd1, stdin=PIPE, stdout=PIPE, stderr=logfile)
-        io.write_mat(pipe1.stdin, feats, key=b'abc')
+        io.write_mat(pipe1.stdin, feats, key=b"abc")
         pipe1.stdin.close()
         # pipe1.communicate()
 
@@ -98,10 +104,11 @@ def nnet_forward(feats, nnet, feats_transform='', apply_log=False,
             logger.debug("%s", logtxt)
 
     os.unlink(dnn.name)
-    if feats_transform != '':
+    if feats_transform != "":
         os.unlink(transf.name)
-    
+
     return posts
+
 
 def compute_dnn_vad(samples, rate, silence_threshold=0.9, posterior=0):
     """Performs Voice Activity Detection on a Kaldi feature matrix
@@ -127,16 +134,14 @@ def compute_dnn_vad(samples, rate, silence_threshold=0.9, posterior=0):
         The labels [1/0] of voiced features (1D array of floats).
     """
 
-    nnetfile   = pkg_resources.resource_filename(__name__,
-    'test/dnn/ami.nnet.txt')
-    transfile = pkg_resources.resource_filename(__name__,
-    'test/dnn/ami.feature_transform.txt')
+    nnetfile = pkg_resources.resource_filename(__name__, "test/dnn/ami.nnet.txt")
+    transfile = pkg_resources.resource_filename(
+        __name__, "test/dnn/ami.feature_transform.txt"
+    )
 
-    feats = bob.kaldi.cepstral(samples, 'mfcc', rate,
-    normalization=False)
+    feats = bob.kaldi.cepstral(samples, "mfcc", rate, normalization=False)
 
-    with open(nnetfile) as nnetf, \
-        open(transfile) as trnf:
+    with open(nnetfile) as nnetf, open(transfile) as trnf:
         dnn = nnetf.read()
         trn = trnf.read()
         post = bob.kaldi.nnet_forward(feats, dnn, trn)
@@ -149,6 +154,7 @@ def compute_dnn_vad(samples, rate, silence_threshold=0.9, posterior=0):
             vad.append(1.0)
 
     return vad
+
 
 def compute_dnn_phone(samples, rate):
     """Computes phone posteriors on a Kaldi feature matrix
@@ -167,23 +173,20 @@ def compute_dnn_phone(samples, rate):
         The phone posteriors and labels.
     """
 
-    nnetfile   = pkg_resources.resource_filename(__name__,
-    'test/dnn/ami.nnet.txt')
-    transfile = pkg_resources.resource_filename(__name__,
-    'test/dnn/ami.feature_transform.txt')
-    labfile = pkg_resources.resource_filename(__name__,
-    'test/dnn/ami.phones.txt')
+    nnetfile = pkg_resources.resource_filename(__name__, "test/dnn/ami.nnet.txt")
+    transfile = pkg_resources.resource_filename(
+        __name__, "test/dnn/ami.feature_transform.txt"
+    )
+    labfile = pkg_resources.resource_filename(__name__, "test/dnn/ami.phones.txt")
 
-    feats = bob.kaldi.cepstral(samples, 'mfcc', rate,
-    normalization=False)
+    feats = bob.kaldi.cepstral(samples, "mfcc", rate, normalization=False)
 
-    with open(nnetfile) as nnetf, \
-        open(transfile) as trnf:
+    with open(nnetfile) as nnetf, open(transfile) as trnf:
         dnn = nnetf.read()
         trn = trnf.read()
         post = bob.kaldi.nnet_forward(feats, dnn, trn)
 
-    labels = a=np.genfromtxt(labfile, dtype='str', skip_header=1)
+    labels = a = np.genfromtxt(labfile, dtype="str", skip_header=1)
     lab = []
     for l in labels:
         lab.append(l[0])
