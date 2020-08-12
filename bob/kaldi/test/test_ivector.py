@@ -76,7 +76,7 @@ def test_ivector_extract():
 
     theirs = np.loadtxt(reference)
 
-    assert np.allclose(ivector_array, theirs)
+    np.testing.assert_allclose(ivector_array, theirs)
 
 
 def test_plda_train():
@@ -115,7 +115,6 @@ def test_plda_score():
 
     plda_file = bob.io.base.test_utils.temporary_filename()
     mean_file = bob.io.base.test_utils.temporary_filename()
-    spk_file = bob.io.base.test_utils.temporary_filename()
     test_file = pkg_resources.resource_filename(__name__, "data/test-mobio.ivector")
     features = pkg_resources.resource_filename(__name__, "data/feats-mobio.npy")
 
@@ -129,4 +128,4 @@ def test_plda_score():
     # Score PLDA
     score = bob.kaldi.plda_score(test_feats, enrolled, plda[0], plda[1])
 
-    assert np.allclose(score, [-23.9922], 1e-03, 1e-05)
+    np.testing.assert_allclose(score, [-23.9922], 1e-03, 1e-05)

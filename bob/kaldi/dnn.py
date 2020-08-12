@@ -186,7 +186,7 @@ def compute_dnn_phone(samples, rate):
 
     labels = np.genfromtxt(labfile, dtype="str", skip_header=1)
     lab = []
-    for lab in labels:
-        lab.append(lab[0])
+    for ll in labels:
+        lab.append(ll[0])
 
     return [post, lab]

@@ -24,7 +24,7 @@ def test_mfcc():
 
     assert ours.shape == theirs.shape
 
-    assert np.allclose(ours, theirs, 1e-02, 1e-02)
+    np.testing.assert_allclose(ours, theirs, 1e-02, 1e-02)
 
 
 def test_mfcc_from_path():
@@ -37,7 +37,7 @@ def test_mfcc_from_path():
 
     assert ours.shape == theirs.shape
 
-    assert np.allclose(ours, theirs, 1e-02, 1e-02)
+    np.testing.assert_allclose(ours, theirs, 1e-02, 1e-02)
 
 
 def test_compute_vad():
@@ -50,7 +50,7 @@ def test_compute_vad():
     ours = bob.kaldi.compute_vad(data.load()[0], data.rate)
     theirs = np.loadtxt(reference)
 
-    assert np.allclose(ours, theirs)
+    np.testing.assert_allclose(ours, theirs)
 
 
 def test_cepstral_mfcc():
@@ -66,7 +66,7 @@ def test_cepstral_mfcc():
     theirs = np.loadtxt(reference)
 
     assert ours.shape == theirs.shape
-    assert np.allclose(ours, theirs, 1e-02, 1e-02)
+    np.testing.assert_allclose(ours, theirs, 1e-02, 1e-02)
 
 
 def test_cepstral_plp():
@@ -83,4 +83,4 @@ def test_cepstral_plp():
 
     assert ours.shape == theirs.shape
 
-    assert np.allclose(ours, theirs, 1e-02, 1e-02)
+    np.testing.assert_allclose(ours, theirs, 1e-02, 1e-02)

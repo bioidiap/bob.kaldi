@@ -37,7 +37,7 @@ def test_forward_pass():
 
     assert ours.shape == theirs.shape
 
-    assert np.allclose(ours, theirs, 1e-03, 1e-05)
+    np.testing.assert_allclose(ours, theirs, 1e-03, 1e-05)
 
 
 def test_compute_dnn_vad():
@@ -50,7 +50,7 @@ def test_compute_dnn_vad():
     ours = bob.kaldi.compute_dnn_vad(data.load()[0], data.rate)
     theirs = np.loadtxt(reference)
 
-    assert np.allclose(ours, theirs)
+    np.testing.assert_allclose(ours, theirs)
 
 
 def test_compute_dnn_phone():
